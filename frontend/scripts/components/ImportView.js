@@ -131,6 +131,11 @@ class ImportView {
             : 'Every material name matched the library.';
         const box = reEl('div', 'iv-summary');
         box.append(reEl('p', null, text));
+        const check = p.recipes.filter(r => r.additions === 'guessed' || r.additions === 'unclear').length;
+        if (check) {
+            box.append(reEl('p', 'iv-note', `${ivPlural(check, 'recipe')} need${check === 1 ? 's' : ''} ` +
+                'the additions checked: see the notes beside them.'));
+        }
         if (p.ignored_columns.length) {
             box.append(reEl('p', 're-hint', `Columns not read as materials: ${p.ignored_columns.join(', ')}.`));
         }
@@ -262,7 +267,7 @@ class ImportView {
                 ? `Imported before as "${recipe.existing.name}". Importing again adds a second copy.`
                 : `A glaze named "${recipe.existing.name}" already exists. Importing adds another.`));
         }
-        if (recipe.additions === 'found') {
+        if (recipe.additions === 'found' || recipe.additions === 'guessed') {
             cell.append(reEl('div', 're-hint',
                 `Base ${recipe.base_total}, additions ${recipe.additions_total}.`));
         }

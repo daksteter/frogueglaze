@@ -11,13 +11,17 @@ import pytest
 
 from core.insight_live import (
     ADDITIONS_FOUND,
+    ADDITIONS_GUESSED,
     ADDITIONS_NONE,
     ADDITIONS_UNCLEAR,
+    KIND_ADDITION,
+    KIND_BASE,
     ExportMaterial,
     ImportFormatError,
     clean_text,
     decode,
     match_materials,
+    material_kind,
     parse_export,
     recipe_string,
     split_additions,
@@ -109,6 +113,53 @@ class TestAdditions:
         recipe = parse_export("Code,Name,A,B\nX1,One,70,45\n").recipes[0]
         assert recipe.additions == ADDITIONS_UNCLEAR
         assert "mark the additions in the recipe editor" in recipe.warnings[0]
+
+    def test_material_types_pick_between_splits(self):
+        # Columns follow the oldest recipe, so the newer recipe's Tin Oxide
+        # addition comes before its Wollastonite. Both 5-material sets reach 100.
+        text = (
+            'Code,Name,"Mystery Kaolin","Ferro Frit 3134",Silica,Whiting,'
+            '"Custer Feldspar","Tin Oxide",Wollastonite,"Blue Stain"\n'
+            "T202,Newer,15,25,30,,20,10,10,3\n"
+            "T201,Older,25,25,30,20,,2,,\n"
+        )
+        newer, older = parse_export(text).recipes
+        assert newer.additions == ADDITIONS_GUESSED
+        assert [m.name for m in newer.materials if m.addition] == [
+            "Tin Oxide",
+            "Blue Stain",
+        ]
+        assert "check them" in newer.warnings[0]
+        assert older.additions == ADDITIONS_FOUND and older.warnings == []
+
+    def test_file_order_is_decisive_only_for_one_recipe(self):
+        # {50, 50} leads; {50, 30, 20} also adds up to 100 and fits as well
+        materials = _materials(50, 50, 30, 20)
+        assert split_additions(materials, in_order=True) == ADDITIONS_FOUND
+        assert [m.addition for m in materials] == [False, False, True, True]
+        assert split_additions(_materials(50, 50, 30, 20), in_order=False) == (
+            ADDITIONS_GUESSED
+        )
+
+    def test_too_many_combinations_is_unclear(self):
+        assert split_additions(_materials(*[2] * 60)) == ADDITIONS_UNCLEAR
+
+    @pytest.mark.parametrize(
+        "name, kind",
+        [
+            ("Zircopax", KIND_ADDITION),
+            ("Red Iron Oxide", KIND_ADDITION),
+            ("Whiting", KIND_BASE),
+            ("EPK", KIND_BASE),
+            ("Bentonite", None),
+            ("Alumina Hydrate", None),
+            ("Mystery Kaolin", KIND_BASE),
+            ("Blue Stain", KIND_ADDITION),
+            ("Meadow 1234", None),
+        ],
+    )
+    def test_material_kinds(self, name, kind):
+        assert material_kind(name) == kind
 
 
 class TestMatchingAndRecipes:

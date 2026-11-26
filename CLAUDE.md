@@ -30,8 +30,10 @@ studio, so features are judged by whether that studio needs them.
    F-4, generic Ball Clay, Barnard, Alkalifritte M1233, rutile. Spodumene is
    theoretical only: no supplier sheet could be sourced.)
 4. An Insight-Live export importer that reports unmatched material names.
-   (Built 2026-11-25 from a one-recipe sample export; check the column order
-   and addition detection against a multi-recipe export.)
+   (Built 2026-11-25; checked against one- and four-recipe exports. In a
+   multi-recipe export the columns follow first appearance across recipes in
+   code order, not each recipe's own order, so additions are often picked
+   by material type and flagged "guessed".)
 5. Validate UMF output against Insight-Live using real studio recipes.
 6. Printable batch sheets, firing schedules, test-tile records with photos.
 

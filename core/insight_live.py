@@ -5,16 +5,18 @@ Insight-Live's recipe list exports a CSV with one row per recipe::
     Code,Name,Description,Date,Batch,Location,<material columns...>,Batch total (g),Comments
 
 There is one column per material used by any recipe in the export, holding
-that recipe's amount (blank when the recipe doesn't use it). The export does
-not mark additions or record a firing cone. Additions are worked out from
-the amounts: the base materials add up to 100 and the additions come after.
+that recipe's amount (blank when the recipe doesn't use it). Columns appear in
+the order materials first turn up across the recipes, oldest recipe first, so
+only a one-recipe export keeps a recipe's own order. The export does not mark
+additions or record a firing cone. Additions are worked out from the amounts
+(the base adds up to 100) and, when several splits add up, the material types.
 
 This module only reads and matches; ``core.glazes.importer`` writes glazes.
 """
 
 import csv
 import io
-import itertools
+import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -37,11 +39,25 @@ METADATA_COLUMNS = {
 }
 
 TOLERANCE = 0.1  # how close to 100 a base total must be (matches the parser)
-MAX_SUBSET_SEARCH = 12  # materials; beyond this, don't search combinations
+MAX_SEARCH_STEPS = 200_000  # per recipe, for the sets of materials adding to 100
 
 ADDITIONS_NONE = "none"  # every material is part of the base
-ADDITIONS_FOUND = "found"  # base and additions worked out from the amounts
+ADDITIONS_FOUND = "found"  # the amounts (and order) settle which are additions
+ADDITIONS_GUESSED = "guessed"  # several splits add up; picked by material type
 ADDITIONS_UNCLEAR = "unclear"  # imported as all base; check in the editor
+
+# How a material usually appears in a recipe: in the base, or as an addition.
+KIND_BASE = "base"
+KIND_ADDITION = "addition"
+BASE_CATEGORIES = {"feldspar", "silica", "flux", "frit", "clay"}
+ADDITION_CATEGORIES = {"colorant", "opacifier"}
+_EITHER = re.compile(r"bentonite|macaloid|veegum", re.I)  # suspenders: base or added
+_BASE_WORDS = re.compile(
+    r"kaolin|clay|feldspar|\bspar\b|frit|silica|flint|nepheline|whiting|"
+    r"wollastonite|talc|dolomite",
+    re.I,
+)
+_ADDITION_WORDS = re.compile(r"\bstain\b|pigment", re.I)
 
 
 class ImportFormatError(ValueError):
@@ -153,44 +169,114 @@ def _columns(header: List[str], rows: List[List[str]]):
     return metadata, materials, ignored
 
 
-def split_additions(materials: List[ExportMaterial]) -> str:
+def material_kind(name: str) -> Optional[str]:
+    """KIND_BASE, KIND_ADDITION, or None when a material is commonly either.
+
+    Uses the matched material's category; for a name that doesn't match,
+    words in the name ("kaolin", "stain").
+    """
+    if _EITHER.search(name):
+        return None
+    key, _partial = match_material_key(name)
+    material = get_material(key) if key else None
+    if material is not None:
+        if material.category in ADDITION_CATEGORIES:
+            return KIND_ADDITION
+        return KIND_BASE if material.category in BASE_CATEGORIES else None
+    if _ADDITION_WORDS.search(name):
+        return KIND_ADDITION
+    return KIND_BASE if _BASE_WORDS.search(name) else None
+
+
+class _SearchLimit(Exception):
+    pass
+
+
+def _bases(amounts: List[float]) -> Optional[List[frozenset]]:
+    """Every set of materials (by index) whose amounts add up to 100.
+
+    None when there are too many small amounts to try every combination.
+    """
+    order = sorted(range(len(amounts)), key=lambda i: -amounts[i])
+    left = [0.0] * (len(order) + 1)  # total of the amounts not yet considered
+    for pos in range(len(order) - 1, -1, -1):
+        left[pos] = left[pos + 1] + amounts[order[pos]]
+    found: List[frozenset] = []
+    chosen: List[int] = []
+    steps = 0
+
+    def walk(pos: int, total: float) -> None:
+        nonlocal steps
+        steps += 1
+        if steps > MAX_SEARCH_STEPS:
+            raise _SearchLimit
+        if total > 100 + TOLERANCE or total + left[pos] < 100 - TOLERANCE:
+            return
+        if pos == len(order):
+            found.append(frozenset(chosen))
+            return
+        chosen.append(order[pos])
+        walk(pos + 1, total + amounts[order[pos]])
+        chosen.pop()
+        walk(pos + 1, total)
+
+    try:
+        walk(0, 0.0)
+    except _SearchLimit:
+        return None
+    return found
+
+
+def split_additions(
+    materials: List[ExportMaterial],
+    kinds: Optional[List[Optional[str]]] = None,
+    in_order: bool = True,
+) -> str:
     """Mark which materials are additions; returns one of the ADDITIONS_* values.
 
-    Materials are in file order. The base is the leading run that adds up to
-    100; failing that, the one combination of materials that does.
+    The base is a set of materials adding up to 100. When several sets do,
+    the one that best fits ``kinds`` (see ``material_kind``) wins, then the
+    one that leads the file order. ``in_order`` says the materials are in the
+    recipe's own order (a one-recipe export), where a leading set is decisive.
     """
-    total = sum(m.amount for m in materials)
-    if total <= 100 + TOLERANCE:
+    if sum(m.amount for m in materials) <= 100 + TOLERANCE:
         return ADDITIONS_NONE
-    running = 0.0
-    for count, material in enumerate(materials, start=1):
-        running += material.amount
-        if abs(running - 100) <= TOLERANCE:
-            for later in materials[count:]:
-                later.addition = True
-            return ADDITIONS_FOUND
-        if running > 100 + TOLERANCE:
-            break
-    if len(materials) <= MAX_SUBSET_SEARCH:
-        combos = (
-            combo
-            for size in range(1, len(materials))
-            for combo in itertools.combinations(range(len(materials)), size)
-            if abs(sum(materials[i].amount for i in combo) - 100) <= TOLERANCE
+    kinds = kinds or [None] * len(materials)
+    bases = _bases([m.amount for m in materials])
+    if not bases:
+        return ADDITIONS_UNCLEAR
+
+    def misfits(base: frozenset) -> int:
+        return sum(
+            1
+            for i, kind in enumerate(kinds)
+            if (kind == KIND_ADDITION and i in base)
+            or (kind == KIND_BASE and i not in base)
         )
-        bases = list(itertools.islice(combos, 2))  # a second one means ambiguous
-        if len(bases) == 1:
-            for index, material in enumerate(materials):
-                material.addition = index not in bases[0]
-            return ADDITIONS_FOUND
-    return ADDITIONS_UNCLEAR
+
+    def rank(base: frozenset):
+        return (misfits(base), base != frozenset(range(len(base))))
+
+    ranked = sorted(bases, key=rank)
+    best = ranked[0]
+    if len(ranked) > 1 and rank(ranked[1]) == rank(best):
+        return ADDITIONS_UNCLEAR
+    for index, material in enumerate(materials):
+        material.addition = index not in best
+    leads = not rank(best)[1]
+    settled = (
+        len(ranked) == 1
+        or (leads and in_order)
+        or (leads and misfits(best) == 0 and misfits(ranked[1]) > 0)
+    )
+    return ADDITIONS_FOUND if settled else ADDITIONS_GUESSED
 
 
 def _cell(row: List[str], index: Optional[int]) -> str:
     return row[index] if index is not None and index < len(row) else ""
 
 
-def _recipe(row_number, row, header, metadata, material_columns) -> ExportRecipe:
+def _recipe(row_number, row, header, metadata, material_columns, in_order):
     recipe = ExportRecipe(
         row=row_number,
         code=_cell(row, metadata.get("code")).strip(),
@@ -211,13 +297,20 @@ def _recipe(row_number, row, header, metadata, material_columns) -> ExportRecipe
     if not recipe.materials:
         recipe.warnings.append("The recipe has no materials in the export.")
         return recipe
-    recipe.additions = split_additions(recipe.materials)
+    kinds = [material_kind(m.name) for m in recipe.materials]
+    recipe.additions = split_additions(recipe.materials, kinds, in_order)
     total = sum(m.amount for m in recipe.materials)
-    if recipe.additions == ADDITIONS_UNCLEAR:
+    if recipe.additions == ADDITIONS_GUESSED:
         recipe.warnings.append(
-            f"The amounts add up to {total:g}, and no set of them adds up to 100, so "
-            "the additions couldn't be told apart. Every material is imported as part "
-            "of the base; mark the additions in the recipe editor."
+            "More than one set of these materials adds up to 100. The additions "
+            "shown were picked by material type (colorants and opacifiers as "
+            "additions); check them."
+        )
+    elif recipe.additions == ADDITIONS_UNCLEAR:
+        recipe.warnings.append(
+            f"The amounts add up to {total:g} and the additions couldn't be worked "
+            "out from them, so every material is imported as part of the base; mark "
+            "the additions in the recipe editor."
         )
     elif total < 100 - TOLERANCE:
         recipe.warnings.append(
@@ -268,7 +361,7 @@ def parse_export(text: str) -> ExportFile:
     if len(records) > MAX_RECIPES:
         raise ImportFormatError(f"The file has more than {MAX_RECIPES} recipes.")
     recipes = [
-        _recipe(number, row, header, metadata, material_columns)
+        _recipe(number, row, header, metadata, material_columns, len(records) == 1)
         for number, row in records
     ]
     names = [" ".join(header[i].replace(",", " ").split()) for i in material_columns]

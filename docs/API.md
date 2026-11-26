@@ -201,11 +201,11 @@ Both take the text of a recipe CSV exported from DigitalFire Insight-Live as `cs
 
 The preview writes nothing. It returns:
 
-- `recipes`: each with `row` (the line it starts on, used to choose recipes), `code`, `name`, `description`, `date`, `comments`, `materials` (`name`, `amount`, `addition`), `additions` (`none`, `found` or `unclear`), `base_total`, `additions_total`, `warnings`, and `existing` (null, or the glaze it would duplicate, with `reason` `code` when that Insight-Live code was imported before or `name` when a glaze has the same name).
+- `recipes`: each with `row` (the line it starts on, used to choose recipes), `code`, `name`, `description`, `date`, `comments`, `materials` (`name`, `amount`, `addition`), `additions` (`none`, `found`, `guessed` or `unclear`), `base_total`, `additions_total`, `warnings`, and `existing` (null, or the glaze it would duplicate, with `reason` `code` when that Insight-Live code was imported before or `name` when a glaze has the same name).
 - `materials`: each export material name with the `key` and `material` name it matched (null when unmatched), `partial` (only a leading part of the name matched), `source_type`, and how many `recipes` use it.
 - `unmatched`: the material names that didn't match.
 
-The export doesn't mark additions. The base is the leading materials that add up to 100 (within 0.1), or failing that the one combination that does; the rest are additions. When neither works, `additions` is `unclear` and every material is imported as base.
+The export doesn't mark additions, and its material columns follow the order materials first appear across the recipes (oldest recipe first), so only a one-recipe export keeps a recipe's own order. The base is a set of materials adding up to 100 (within 0.1); the rest are additions. When only one set adds up, or a one-recipe export's leading materials do, `additions` is `found`. When several sets add up, the one that best fits the material types wins (colorants and opacifiers as additions; silica, feldspars, frits, fluxes and clays other than bentonite in the base), and `additions` is `guessed` unless the file order agrees. When no set adds up, or two fit equally well, `additions` is `unclear` and every material is imported as base.
 
 `POST /api/import/insight-live` creates a glaze for each chosen recipe, in one transaction:
 
