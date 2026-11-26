@@ -10,6 +10,7 @@ from webapp.routes.chemistry import bp as chemistry_bp
 from webapp.routes.combinations import bp as combinations_bp
 from webapp.routes.demo import bp as demo_bp
 from webapp.routes.experiments import bp as experiments_bp
+from webapp.routes.firing import bp as firing_bp
 from webapp.routes.glazes import bp as glazes_bp
 from webapp.routes.health import bp as health_bp
 from webapp.routes.imports import bp as imports_bp
@@ -29,6 +30,7 @@ ALL_BLUEPRINTS = [
     materials_bp,
     imports_bp,
     tiles_bp,
+    firing_bp,
     combinations_bp,
     chemistry_bp,
     experiments_bp,

@@ -24,6 +24,7 @@ let recipeEditor = null;
 let materialsView = null;
 let importView = null;
 let tileView = null;
+let firingView = null;
 
 // Sanitize HTML to prevent XSS — uses DOMPurify if available
 function safeHTML(str) {
@@ -106,6 +107,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         tileView = new TileView({ getGlazes: () => state.glazes })
     } catch (e) {
         console.error('TileView error:', e)
+    }
+
+    try {
+        firingView = new FiringView()
+    } catch (e) {
+        console.error('FiringView error:', e)
     }
 
     // Load data from API
@@ -197,7 +204,7 @@ function switchView(view) {
         item.classList.toggle('active', item.dataset.view === view)
     })
     // These views have no stage filter and their own empty states
-    const ownLayout = ['editor', 'materials', 'import', 'tiles'].includes(view)
+    const ownLayout = ['editor', 'materials', 'import', 'tiles', 'firing'].includes(view)
     document.getElementById('stage-bar').style.display = ownLayout ? 'none' : ''
     if (ownLayout) document.getElementById('empty-state').style.display = 'none'
 
@@ -213,6 +220,9 @@ function switchView(view) {
         if (glazeTips) glazeTips.hide()
     } else if (view === 'tiles') {
         if (tileView) tileView.render(document.getElementById('canvas'))
+        if (glazeTips) glazeTips.hide()
+    } else if (view === 'firing') {
+        if (firingView) firingView.render(document.getElementById('canvas'))
         if (glazeTips) glazeTips.hide()
     } else if (view === 'studio') {
         renderStudioView()

@@ -155,23 +155,30 @@ class BatchSheet {
     }
 
     _print() {
-        if (!this.sheet) return;
-        let root = document.getElementById('print-root');
-        if (!root) {
-            root = reEl('div');
-            root.id = 'print-root';
-            document.body.append(root);
-        }
-        root.replaceChildren(this.previewEl.firstElementChild.cloneNode(true));
-        document.body.classList.add('printing');
-        const done = () => {
-            document.body.classList.remove('printing');
-            root.replaceChildren();
-            window.removeEventListener('afterprint', done);
-        };
-        window.addEventListener('afterprint', done);
-        window.print();
+        if (this.sheet) printOnly(this.previewEl.firstElementChild);
     }
+}
+
+/**
+ * Print a copy of ``node`` and nothing else: it goes into #print-root, and
+ * the print CSS in batch-sheet.css hides the rest of the page.
+ */
+function printOnly(node) {
+    let root = document.getElementById('print-root');
+    if (!root) {
+        root = reEl('div');
+        root.id = 'print-root';
+        document.body.append(root);
+    }
+    root.replaceChildren(node.cloneNode(true));
+    document.body.classList.add('printing');
+    const done = () => {
+        document.body.classList.remove('printing');
+        root.replaceChildren();
+        window.removeEventListener('afterprint', done);
+    };
+    window.addEventListener('afterprint', done);
+    window.print();
 }
 
 const batchSheet = new BatchSheet();
@@ -181,3 +188,4 @@ function openBatchSheet(options) {
 }
 
 window.openBatchSheet = openBatchSheet;
+window.printOnly = printOnly;

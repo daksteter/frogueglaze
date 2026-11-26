@@ -264,7 +264,26 @@ GET /tile-photos/<filename>
 
 A tile records one fired test of a glaze. `POST /api/tiles` takes `glaze_id` (required) and any of `label`, `fired_on` (YYYY-MM-DD), `cone`, `atmosphere` (oxidation, reduction, neutral, salt or wood), `kiln`, `clay_body`, `application`, `result` and `verdict` (keep, retest or reject). `version_id` picks the saved recipe version tested; without it the glaze's current recipe is used. The tile stores a copy of that recipe in `recipe`, and keeps it when the glaze changes. `PUT` changes only the fields sent; sending `version_id` (null for the current recipe) or a different `glaze_id` takes that recipe as the one tested.
 
-Tiles come back with `glaze_name` and `photos` (`id`, `url`, `created_at`), most recently fired first. Photos are uploaded as multipart form-data with the image in a `photo` field: JPEG, PNG or WebP, checked by content, up to 10 MB and 20 per tile. The browser app shrinks and re-encodes photos as JPEG before upload. Photo files are served from `/tile-photos/` under random names, cacheable indefinitely. Deleting a tile, or its glaze, deletes its photo files. Errors are 400 (`invalid_tile`, `invalid_photo`), 404 or 413 with a plain `message`.
+Tiles come back with `glaze_name` and `photos` (`id`, `url`, `created_at`), most recently fired first. Photos are uploaded as multipart form-data with the image in a `photo` field: JPEG, PNG or WebP, checked by content, up to 10 MB and 20 per tile. The browser app shrinks and re-encodes photos as JPEG before upload. Photo files are served from `/tile-photos/` under random names, cacheable indefinitely. Deleting a tile, or its glaze, deletes its photo files. `schedule_id` links a tile to a firing schedule (null for none); tiles come back with `schedule_name` too. Errors are 400 (`invalid_tile`, `invalid_photo`), 404 or 413 with a plain `message`.
+
+## Firing schedules
+
+```http
+GET /api/firing-schedules
+GET /api/firing-schedules/<schedule_id>
+POST /api/firing-schedules
+PUT /api/firing-schedules/<schedule_id>
+DELETE /api/firing-schedules/<schedule_id>
+POST /api/firing-schedules/timing
+```
+
+A schedule has a unique `name` (case is ignored), `cone`, `unit` (`F`, the default, or `C`), `notes`, and `segments`, a list of 1 to 30:
+
+```json
+{"rate": 108, "target": 2232, "hold": 10, "note": "to cone 6"}
+```
+
+`rate` is degrees per hour, or null for full speed; `target` is in the schedule's unit; `hold` is minutes (0 to 1440). `PUT` changes the fields sent; segments sent replace the old ones. Schedules come back by name with `tile_count` (test tiles linked to them) and `timing`: `start` (room temperature, 70 °F or 21 °C), `peak`, `total_minutes`, `segments` (`ramp_minutes`, `elapsed_minutes`, `direction`: heat, cool or hold) and `points` (`minutes`, `temp`, `full`) tracing the curve. Full-speed segments are timed at `full_speed_rate` (500 °F/hr, 278 °C/hr) and counted in `full_speed_segments`. `POST /api/firing-schedules/timing` takes `unit` and `segments` and returns `timing` without saving. Deleting a schedule unlinks its tiles. Errors are 400 (`invalid_schedule`) or 404 with a plain `message`.
 
 ## Experiment uploads and photos
 

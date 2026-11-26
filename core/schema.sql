@@ -205,6 +205,20 @@ CREATE TABLE IF NOT EXISTS studio_state (
     value INTEGER NOT NULL DEFAULT 0
 );
 
+-- Firing schedules: the studio's kiln programs. ``segments`` is a JSON list of
+-- {rate, target, hold, note} in ``unit`` (F or C); rate null = full speed.
+-- Checked and timed in core/firing.py.
+CREATE TABLE IF NOT EXISTS firing_schedules (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    cone TEXT,
+    unit TEXT NOT NULL DEFAULT 'F',
+    segments TEXT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Test tiles: one fired test of a glaze. ``recipe`` is a copy of the recipe
 -- as tested (and ``version_id`` the saved version it came from, if any), so
 -- later edits to the glaze don't change the record. Checked in core/tiles.py.
@@ -217,7 +231,8 @@ CREATE TABLE IF NOT EXISTS test_tiles (
     fired_on TEXT,               -- YYYY-MM-DD
     cone TEXT,
     atmosphere TEXT,
-    kiln TEXT,                   -- kiln and firing
+    kiln TEXT,                   -- which kiln, where in it
+    schedule_id INTEGER REFERENCES firing_schedules(id) ON DELETE SET NULL,
     clay_body TEXT,
     application TEXT,            -- dips, coats, thickness, specific gravity
     result TEXT,                 -- what came out of the kiln

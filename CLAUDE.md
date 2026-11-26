@@ -43,8 +43,8 @@ studio, so features are judged by whether that studio needs them.
    git-ignored `private/` folder.)
 6. Printable batch sheets, firing schedules, test-tile records with photos,
    and a deployment on an always-on studio computer (Docker, studio
-   network only) with backups. (Batch sheets and test tiles built
-   2026-11-26.)
+   network only) with backups. (Batch sheets, test tiles and firing
+   schedules built 2026-11-26.)
 
 Removed from the fork on 2026-11-25; don't bring them back, including when
 merging `upstream/master` (resolve conflicts there by keeping them deleted):
@@ -123,6 +123,13 @@ what is implemented from what is planned.
   `TILE_PHOTOS_PATH`, by default `tile-photos/` beside the database
   (git-ignored: studio data), and are served from `/tile-photos/`. The
   browser re-encodes photos as JPEG before upload, dropping location data.
+- Firing schedules: `core/firing.py` (table `firing_schedules`, segments as
+  JSON; checks and timing from room temperature, full-speed segments
+  estimated and flagged), routes in `webapp/routes/firing.py`, UI
+  `frontend/scripts/components/FiringView.js`. `test_tiles.schedule_id`
+  links tiles (added to older databases by `_run_migrations`). There are no
+  presets: `ceramics-foundation/data/firing-schedules.json` cites
+  Digitalfire, so don't seed from it.
 - Insight-Live importer: `core/insight_live.py` reads the recipe CSV (one row
   per recipe, one column per material, no additions or cone marked) and
   matches names with `match_material_key()`, the calculator's own lookup.

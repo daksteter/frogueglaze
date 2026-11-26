@@ -1,5 +1,6 @@
 /* Batch sheet: a dialog with a preview, and a print layout that shows only
-   the sheet (#print-root, filled by BatchSheet.js while printing). */
+   the sheet (#print-root, filled by printOnly() in BatchSheet.js while
+   printing; firing schedules print through it too). */
 
 .bs-dialog {
     width: min(760px, 94vw);

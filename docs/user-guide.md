@@ -13,7 +13,8 @@ Complete guide to using OpenGlaze for glaze management, experimentation, and stu
 7. [Studio Collaboration](#studio-collaboration)
 8. [Firing Logs](#firing-logs)
 9. [Test Tiles](#test-tiles)
-10. [Tips and Best Practices](#tips-and-best-practices)
+10. [Firing Schedules](#firing-schedules)
+11. [Tips and Best Practices](#tips-and-best-practices)
 
 ## Getting Started
 
@@ -31,7 +32,7 @@ When you first access OpenGlaze:
 The interface consists of:
 
 - **Header** — Search (⌘K), AI assistant toggle, PWA install button
-- **Sidebar** — Main views: Combinations, All Glazes, Recipe editor, Materials, Import, Test tiles, Studio
+- **Sidebar** — Main views: Combinations, All Glazes, Recipe editor, Materials, Import, Test tiles, Firing schedules, Studio
 - **Main Content** — Context-aware based on selected view
 - **Command Palette** — Press ⌘K (or Ctrl+K) for quick navigation
 
@@ -382,17 +383,9 @@ Assign experiments to specific members:
    - Loading notes
    - Schedule (or select from presets)
 
-### Firing Schedules
+### Schedules
 
-Ceramics Foundation includes preset schedules:
-
-| Schedule | Use Case |
-|----------|----------|
-| Fast Bisque | Earthenware, single fire |
-| Slow Bisque | Large pieces, prone to cracking |
-| Cone 6 Oxidation | Standard electric firing |
-| Cone 10 Reduction | Gas kiln reduction |
-| Crystalline Slow Cool | Zinc-silicate crystal growth |
+The studio's kiln programs are kept under **Firing schedules** in the sidebar; see [Firing Schedules](#firing-schedules) below. There are no built-in presets.
 
 ### Attaching Results
 
@@ -415,7 +408,7 @@ Link firing logs to experiments and glazes:
 
 The tile keeps a copy of the recipe it tested, so editing the glaze's recipe later doesn't change the record. Changing the glaze or the recipe choice on a saved tile takes that recipe instead.
 
-Kiln and clay body are filled in from the last tile you saved, and both suggest values used before. Click a tile to edit it, enlarge a photo, delete a photo, or delete the tile.
+**Firing schedule** links the tile to one of the studio's [firing schedules](#firing-schedules); choosing one fills in its cone if the cone is empty. Firing schedule, kiln and clay body are filled in from the last tile you saved, and kiln and clay body suggest values used before. Click a tile to edit it, enlarge a photo, delete a photo, or delete the tile.
 
 ### Photos
 
@@ -428,6 +421,23 @@ Photos are shrunk to at most 2000 pixels on the long side and saved as JPEG befo
 - **Angle**: 45° to show surface texture
 - **Close-ups**: Macro for detail shots
 - **Consistency**: Same setup for comparison shots
+
+## Firing Schedules
+
+**Firing schedules** in the sidebar holds the studio's kiln programs, each shown with its firing curve and how long it takes.
+
+### Writing a Schedule
+
+1. Click **New schedule**
+2. Give it a name, the cone, and the unit (°F or °C)
+3. Add a segment for each step of the kiln program: the rate in degrees per hour, the temperature to reach, and a hold in minutes. Leave the rate blank for full speed. A target below the previous temperature is a controlled cool. Each segment can have a short note, such as "start reduction"
+4. Click **Save**
+
+While you type, each segment's time and the time elapsed are worked out from room temperature (70 °F or 21 °C), with the peak, the total time and the firing curve below the table. Full-speed segments have no rate to time them by, so they are estimated at 500 °F/hr (278 °C/hr) and drawn dashed; the summary says when that happens. Times are estimates: a kiln that can't keep up with a rate, or a full load, takes longer.
+
+**Print** prints the schedule on its own, with the segment table, the curve and the notes, to keep by the kiln.
+
+Deleting a schedule doesn't delete the test tiles that used it; they lose the link and keep everything else.
 
 ## Tips and Best Practices
 

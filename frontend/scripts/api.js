@@ -151,6 +151,28 @@ const API = {
         return this._send(`/tiles/${encodeURIComponent(tileId)}/photos/${encodeURIComponent(photoId)}`, 'DELETE');
     },
 
+    // ---- Firing schedules ----
+
+    getFiringSchedules() {
+        return this._send('/firing-schedules');
+    },
+
+    createFiringSchedule(data) {
+        return this._send('/firing-schedules', 'POST', data);
+    },
+
+    updateFiringSchedule(scheduleId, data) {
+        return this._send(`/firing-schedules/${encodeURIComponent(scheduleId)}`, 'PUT', data);
+    },
+
+    deleteFiringSchedule(scheduleId) {
+        return this._send(`/firing-schedules/${encodeURIComponent(scheduleId)}`, 'DELETE');
+    },
+
+    timeFiringSchedule(data) {
+        return this._send('/firing-schedules/timing', 'POST', data);
+    },
+
     // ---- Insight-Live import ----
 
     previewInsightLiveImport(csv) {

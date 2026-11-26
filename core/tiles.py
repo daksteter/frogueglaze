@@ -15,6 +15,7 @@ from datetime import date
 from typing import Optional
 
 from core.db import connect_db
+from core.firing import schedule_exists
 
 ATMOSPHERES = ("oxidation", "reduction", "neutral", "salt", "wood")
 VERDICTS = ("keep", "retest", "reject")
@@ -29,8 +30,9 @@ _SHORT_FIELDS = ("label", "cone", "kiln", "clay_body", "application")
 _FIELDS = _SHORT_FIELDS + ("fired_on", "atmosphere", "result", "verdict")
 _COLUMNS = (
     "t.id, t.glaze_id, g.name AS glaze_name, t.version_id, t.recipe, t.label, "
-    "t.fired_on, t.cone, t.atmosphere, t.kiln, t.clay_body, t.application, "
-    "t.result, t.verdict, t.created_at, t.updated_at"
+    "t.fired_on, t.cone, t.atmosphere, t.kiln, t.schedule_id, "
+    "s.name AS schedule_name, t.clay_body, t.application, t.result, t.verdict, "
+    "t.created_at, t.updated_at"
 )
 _LABELS = {"clay_body": "Clay body", "fired_on": "Date fired"}
 
@@ -86,15 +88,25 @@ def clean_fields(data: dict) -> dict:
     return {f: _clean(f, data[f]) for f in _FIELDS if f in data}
 
 
-def _version_id(value) -> Optional[int]:
+def _id(value, what: str = "version_id") -> Optional[int]:
     if value in (None, ""):
         return None
     if isinstance(value, bool):
-        raise TileError("version_id must be a number.")
+        raise TileError(f"{what} must be a number.")
     try:
         return int(value)
     except (TypeError, ValueError):
-        raise TileError("version_id must be a number.") from None
+        raise TileError(f"{what} must be a number.") from None
+
+
+def _schedule_field(conn, data: dict) -> dict:
+    """{"schedule_id": ...} when ``data`` sets the firing schedule, else {}."""
+    if "schedule_id" not in data:
+        return {}
+    schedule_id = _id(data["schedule_id"], "schedule_id")
+    if schedule_id is not None and not schedule_exists(conn, schedule_id):
+        raise TileError("That firing schedule doesn't exist.")
+    return {"schedule_id": schedule_id}
 
 
 def _recipe_tested(conn, glaze_id: str, version_id: Optional[int]) -> tuple:
@@ -152,6 +164,7 @@ def _with_photos(conn, tiles: list[dict]) -> list[dict]:
 def _select(conn, where: str, params: tuple) -> list[dict]:
     rows = conn.execute(
         f"SELECT {_COLUMNS} FROM test_tiles t JOIN glazes g ON g.id = t.glaze_id "
+        "LEFT JOIN firing_schedules s ON s.id = t.schedule_id "
         f"{where} ORDER BY t.fired_on IS NULL, t.fired_on DESC, t.id DESC",
         params,
     ).fetchall()
@@ -189,8 +202,9 @@ def create_tile(db_path: str, data: dict) -> dict:
     try:
         with conn:
             version_id, recipe = _recipe_tested(
-                conn, glaze_id, _version_id(data.get("version_id"))
+                conn, glaze_id, _id(data.get("version_id"))
             )
+            fields |= _schedule_field(conn, data)
             columns = ["glaze_id", "version_id", "recipe", *fields]
             values = [glaze_id, version_id, recipe, *fields.values()]
             cursor = conn.execute(
@@ -213,7 +227,7 @@ def update_tile(db_path: str, tile_id: int, data: dict) -> dict:
     """
     fields = clean_fields(data)
     new_glaze = _text("glaze_id", data.get("glaze_id"), MAX_SHORT_LENGTH)
-    new_version = _version_id(data.get("version_id"))
+    new_version = _id(data.get("version_id"))
     conn = connect_db(db_path)
     try:
         with conn:
@@ -230,6 +244,7 @@ def update_tile(db_path: str, tile_id: int, data: dict) -> dict:
                     "version_id": version_id,
                     "recipe": recipe,
                 }
+            fields |= _schedule_field(conn, data)
             sets = ", ".join(f"{column} = ?" for column in fields)
             conn.execute(
                 f"UPDATE test_tiles SET {sets + ', ' if sets else ''}"

@@ -50,6 +50,7 @@ It is not a contribution branch: changes here are not sent upstream, though self
 - A **Materials** view: every material's analysis, LOI and source. Each library analysis is marked as a supplier data sheet (linked), theoretical (calculated from the chemical formula), or unverified. The studio can add its own materials and record lot analyses; a lot in use replaces the standard analysis in every calculation. See the [user guide](docs/user-guide.md#materials).
 - **Batch sheets**: print any recipe scaled to a batch size, with a running total for weighing into one bucket, additions on top of the base, and the lot in use. See the [user guide](docs/user-guide.md#batch-sheets).
 - **Test tiles**: record each fired tile with the recipe it tested, firing, clay body, application, result, verdict and photos. Photos are shrunk in the browser, which also drops their location data. See the [user guide](docs/user-guide.md#test-tiles).
+- **Firing schedules**: the studio's kiln programs, segment by segment, with each segment's time, the total, the firing curve and a printable card for the kiln. Test tiles link to the schedule they were fired with. See the [user guide](docs/user-guide.md#firing-schedules).
 - An **Insight-Live importer**: choose a recipe CSV exported from Insight-Live, check how each material name matched the library (and pick a material for any that didn't), then import the recipes as glazes. Additions are worked out from the amounts, and each glaze keeps its Insight-Live code and comments. See the [user guide](docs/user-guide.md#importing-recipes).
 - A larger library: 55 materials, 20 of them from supplier data sheets (Custer feldspar, nepheline syenite, EPK, Redart, bentonite, Hawthorn Bond, Old Hickory M-23, Alberta Slip, Ferro frits 3110/3124/3134/3195, Fusion frits F-2/F-12/F-19/F-69, Gerstley Borate, talc, wollastonite, ilmenite) and 29 calculated from chemical formulas. Six inherited entries are still marked unverified.
 
@@ -71,7 +72,7 @@ It is not a contribution branch: changes here are not sent upstream, though self
 
 1. **Materials:** replace the remaining unverified analyses with supplier data sheets. DigitalFire's reference library is copyrighted and is not used.
 2. **Validation:** run real studio recipes through both tools and compare the UMF numbers.
-3. **Studio extras:** firing schedules, plus a deployment on a studio computer with backups. (Batch sheets and test tiles are done.)
+3. **Studio extras:** a deployment on a studio computer with backups. (Batch sheets, test tiles and firing schedules are done.)
 
 ### Staying in sync with upstream
 

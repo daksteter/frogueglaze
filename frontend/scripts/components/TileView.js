@@ -45,7 +45,7 @@ function tvLast() {
 }
 
 function tvRemember(data) {
-    const last = { kiln: data.kiln || '', clay_body: data.clay_body || '' };
+    const last = { kiln: data.kiln || '', clay_body: data.clay_body || '', schedule_id: data.schedule_id || null };
     try { localStorage.setItem(TV_LAST_KEY, JSON.stringify(last)); } catch (e) { /* private mode */ }
 }
 
@@ -179,7 +179,8 @@ class TileView {
         if (tile.label) title.append(reEl('span', 'tv-label', tile.label));
         const facts = [tvDate(tile.fired_on), tile.cone ? `Cone ${tile.cone}` : '', tvCap(tile.atmosphere)];
         body.append(title, reEl('div', 'tv-facts', facts.filter(Boolean).join(' · ')));
-        if (tile.clay_body) body.append(reEl('div', 'tv-facts', tile.clay_body));
+        const firing = [tile.schedule_name, tile.clay_body].filter(Boolean).join(' · ');
+        if (firing) body.append(reEl('div', 'tv-facts', firing));
         body.append(reEl('span', `tv-verdict tv-verdict-${tile.verdict || 'none'}`, tvVerdictLabel(tile.verdict)));
         card.append(thumb, body);
         return card;
@@ -193,8 +194,25 @@ class TileView {
         this.versionTouched = false;
         this.dirty = false;
         this._fillForm(tile);
+        await this._loadSchedules(tile);
         this.dialog.showModal();
         await this._loadVersions();
+    }
+
+    async _loadSchedules(tile) {
+        const resp = await API.getFiringSchedules();
+        this.schedules = resp.ok ? resp.data : [];
+        this.f.schedule.replaceChildren(new Option('\u2014', ''), ...this.schedules.map(
+            s => new Option(s.cone ? `${s.name} (cone ${s.cone})` : s.name, String(s.id))));
+        const wanted = tile ? tile.schedule_id : tvLast().schedule_id;
+        const known = this.schedules.find(s => s.id === wanted);
+        this.f.schedule.value = known ? String(known.id) : '';
+        if (!tile && known && !this.f.cone.value) this.f.cone.value = known.cone || '';
+    }
+
+    _scheduleChanged() {
+        const schedule = (this.schedules || []).find(s => String(s.id) === this.f.schedule.value);
+        if (schedule && schedule.cone && !this.f.cone.value) this.f.cone.value = schedule.cone;
     }
 
     _field(label, input, className = 'tv-field') {
@@ -227,7 +245,8 @@ class TileView {
         f.fired_on = this._input('fired_on');
         f.cone = this._input('cone', 'e.g. 6');
         f.atmosphere = this._select([['', '—'], ...TV_ATMOSPHERES.map(a => [a, tvCap(a)])]);
-        f.kiln = this._input('kiln', 'Kiln and firing', 'tv-kilns');
+        f.schedule = reEl('select');
+        f.kiln = this._input('kiln', 'Which kiln, where in it', 'tv-kilns');
         f.clay_body = this._input('clay_body', 'e.g. B-Mix', 'tv-clays');
         f.application = this._input('application', 'e.g. 2 dips, 3 s; SG 1.45');
         f.result = reEl('textarea');
@@ -249,10 +268,11 @@ class TileView {
             this._field('Glaze', f.glaze, 'tv-field tv-wide'),
             this._field('Recipe tested', f.version, 'tv-field tv-wide'), f.recipe,
             this._field('Tile label', f.label), this._field('Date fired', f.fired_on),
-            this._field('Cone', f.cone), this._field('Atmosphere', f.atmosphere),
-            this._field('Kiln / firing', f.kiln), this._field('Clay body', f.clay_body),
+            this._field('Firing schedule', f.schedule), this._field('Cone', f.cone),
+            this._field('Atmosphere', f.atmosphere), this._field('Kiln', f.kiln),
+            this._field('Clay body', f.clay_body), this._field('Verdict', f.verdict),
             this._field('Application', f.application, 'tv-field tv-wide'),
-            this._field('Result', f.result, 'tv-field tv-wide'), this._field('Verdict', f.verdict),
+            this._field('Result', f.result, 'tv-field tv-wide'),
         );
         this.formMessage = reEl('p', 're-alert');
         this.formMessage.hidden = true;
@@ -260,6 +280,7 @@ class TileView {
         dialog.addEventListener('input', () => { this.dirty = true; });
         dialog.addEventListener('cancel', e => { e.preventDefault(); this._close(); });
         f.glaze.addEventListener('change', () => this._glazeChanged());
+        f.schedule.addEventListener('change', () => this._scheduleChanged());
         f.version.addEventListener('change', () => { this.versionTouched = true; this._showRecipe(); });
         document.body.append(dialog);
         this.dialog = dialog;
@@ -431,6 +452,7 @@ class TileView {
         const f = this.f;
         const data = {};
         TV_FIELDS.forEach(name => { data[name] = f[name].value.trim(); });
+        data.schedule_id = f.schedule.value ? Number(f.schedule.value) : null;
         const glazeChanged = !this.editing || f.glaze.value !== this.editing.glaze_id;
         if (glazeChanged) data.glaze_id = f.glaze.value;
         const version = f.version.value;

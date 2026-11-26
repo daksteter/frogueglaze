@@ -50,6 +50,13 @@ def _run_migrations(conn):
     """Run database migrations for existing databases."""
     cursor = conn.cursor()
 
+    # Test tiles made before firing schedules existed
+    _add_missing_columns(
+        cursor,
+        "test_tiles",
+        {"schedule_id": "INTEGER REFERENCES firing_schedules(id) ON DELETE SET NULL"},
+    )
+
     # Check if combinations table exists
     cursor.execute(
         "SELECT name FROM sqlite_master WHERE type='table' AND name='combinations'"
@@ -89,6 +96,14 @@ def _run_migrations(conn):
 
     conn.commit()
     logger.info("Database migrations completed")
+
+
+def _add_missing_columns(cursor, table: str, columns: dict) -> None:
+    """Add ``columns`` ({name: type}) that ``table`` doesn't have yet."""
+    existing = {row[1] for row in cursor.execute(f"PRAGMA table_info({table})")}
+    for name, column_type in columns.items():
+        if existing and name not in existing:
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN {name} {column_type}")
 
 
 def _migrate_firing_log_columns(cursor):
