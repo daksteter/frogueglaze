@@ -364,7 +364,8 @@
     margin-top: var(--space-3);
 }
 
-.glaze-batch-sheet {
+.glaze-batch-sheet,
+.glaze-tiles {
     margin-left: var(--space-2);
 }
 

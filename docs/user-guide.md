@@ -12,7 +12,7 @@ Complete guide to using OpenGlaze for glaze management, experimentation, and stu
 6. [Working with Kama (AI)](#working-with-kama-ai)
 7. [Studio Collaboration](#studio-collaboration)
 8. [Firing Logs](#firing-logs)
-9. [Photo Documentation](#photo-documentation)
+9. [Test Tiles](#test-tiles)
 10. [Tips and Best Practices](#tips-and-best-practices)
 
 ## Getting Started
@@ -31,7 +31,7 @@ When you first access OpenGlaze:
 The interface consists of:
 
 - **Header** — Search (⌘K), AI assistant toggle, PWA install button
-- **Sidebar** — Main views: Combinations, All Glazes, Recipe editor, Materials, Import, Photos, Studio
+- **Sidebar** — Main views: Combinations, All Glazes, Recipe editor, Materials, Import, Test tiles, Studio
 - **Main Content** — Context-aware based on selected view
 - **Command Palette** — Press ⌘K (or Ctrl+K) for quick navigation
 
@@ -401,23 +401,25 @@ Link firing logs to experiments and glazes:
 - Attach photos of the kiln opening
 - Note any kiln-related issues (hot spots, element wear)
 
-## Photo Documentation
+## Test Tiles
 
-### Uploading Photos
+**Test tiles** in the sidebar lists every tile, the most recently fired first. Filter by glaze or by verdict. The **Test tiles** button on a glaze card opens the list for just that glaze.
 
-1. Open a glaze or experiment
-2. Click **Add Photo**
-3. Upload image (JPG, PNG, WebP supported)
-4. Add caption and metadata:
-   - Firing it relates to
-   - Clay body
-   - Application notes
+### Recording a Tile
 
-### Photo Organization
+1. Click **New tile**
+2. Choose the glaze. **Recipe tested** starts at the current recipe; pick an older saved version if the tile was made from one
+3. Fill in what you know: tile label (what's written on the tile), date fired, cone, atmosphere, kiln and firing, clay body, application (dips, coats, specific gravity), the result, and a verdict: keep, retest or reject. Only the glaze is required
+4. **Add photos** takes pictures from the camera or files; a tile can have up to 20
+5. Click **Save**
 
-- Photos are organized by glaze, experiment, or firing
-- Filter by date, cone, or atmosphere
-- Compare side-by-side (select multiple photos)
+The tile keeps a copy of the recipe it tested, so editing the glaze's recipe later doesn't change the record. Changing the glaze or the recipe choice on a saved tile takes that recipe instead.
+
+Kiln and clay body are filled in from the last tile you saved, and both suggest values used before. Click a tile to edit it, enlarge a photo, delete a photo, or delete the tile.
+
+### Photos
+
+Photos are shrunk to at most 2000 pixels on the long side and saved as JPEG before they're uploaded, so phone pictures stay small. This also drops the location the phone records in each picture. Photos are stored in a `tile-photos` folder beside the database, and the backup script includes them.
 
 ### Best Practices for Glaze Photos
 

@@ -25,3 +25,6 @@ backups
 frontend/uploads/*
 !frontend/uploads/.gitkeep
 .DS_Store
+
+# Test-tile photos (studio data)
+tile-photos/

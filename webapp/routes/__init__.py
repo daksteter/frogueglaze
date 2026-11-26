@@ -19,6 +19,7 @@ from webapp.routes.recipes import bp as recipes_bp
 from webapp.routes.static_docs import bp as static_docs_bp
 from webapp.routes.studios import bp as studios_bp
 from webapp.routes.templates_routes import bp as templates_bp
+from webapp.routes.tiles import bp as tiles_bp
 from webapp.routes.uploads import bp as uploads_bp
 
 ALL_BLUEPRINTS = [
@@ -27,6 +28,7 @@ ALL_BLUEPRINTS = [
     recipes_bp,
     materials_bp,
     imports_bp,
+    tiles_bp,
     combinations_bp,
     chemistry_bp,
     experiments_bp,

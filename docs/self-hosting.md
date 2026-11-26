@@ -20,6 +20,7 @@ Open <http://localhost:8768>.
 ```text
 Browser -> OpenGlaze Flask container :8768
               |-> /data/glaze.db              (openglaze_data volume)
+              |-> /data/tile-photos/          (openglaze_data volume)
               |-> /app/frontend/uploads       (openglaze_uploads volume)
 ```
 

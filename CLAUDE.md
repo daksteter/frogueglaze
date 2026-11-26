@@ -43,7 +43,8 @@ studio, so features are judged by whether that studio needs them.
    git-ignored `private/` folder.)
 6. Printable batch sheets, firing schedules, test-tile records with photos,
    and a deployment on an always-on studio computer (Docker, studio
-   network only) with backups. (Batch sheets built 2026-11-26.)
+   network only) with backups. (Batch sheets and test tiles built
+   2026-11-26.)
 
 Removed from the fork on 2026-11-25; don't bring them back, including when
 merging `upstream/master` (resolve conflicts there by keeping them deleted):
@@ -115,6 +116,13 @@ what is implemented from what is planned.
   `POST /api/batch-sheet` in `webapp/routes/recipes.py`, UI
   `frontend/scripts/components/BatchSheet.js` (a dialog; printing copies the
   sheet into `#print-root` and print CSS hides everything else).
+- Test tiles: `core/tiles.py` (tables `test_tiles`, `tile_photos`; a tile
+  keeps a copy of the recipe it tested), routes in `webapp/routes/tiles.py`,
+  UI `frontend/scripts/components/TileView.js` (the "Test tiles" view; it
+  replaced upstream's experiment photo gallery). Photo files live in
+  `TILE_PHOTOS_PATH`, by default `tile-photos/` beside the database
+  (git-ignored: studio data), and are served from `/tile-photos/`. The
+  browser re-encodes photos as JPEG before upload, dropping location data.
 - Insight-Live importer: `core/insight_live.py` reads the recipe CSV (one row
   per recipe, one column per material, no additions or cone marked) and
   matches names with `match_material_key()`, the calculator's own lookup.

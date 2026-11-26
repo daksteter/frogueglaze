@@ -248,7 +248,25 @@ POST /api/experiments/<exp_id>/firing-log
 POST /api/experiments/<exp_id>/share
 ```
 
-## Uploads and photos
+## Test tiles
+
+```http
+GET /api/tiles
+GET /api/tiles?glaze_id=<glaze_id>
+GET /api/tiles/<tile_id>
+POST /api/tiles
+PUT /api/tiles/<tile_id>
+DELETE /api/tiles/<tile_id>
+POST /api/tiles/<tile_id>/photos
+DELETE /api/tiles/<tile_id>/photos/<photo_id>
+GET /tile-photos/<filename>
+```
+
+A tile records one fired test of a glaze. `POST /api/tiles` takes `glaze_id` (required) and any of `label`, `fired_on` (YYYY-MM-DD), `cone`, `atmosphere` (oxidation, reduction, neutral, salt or wood), `kiln`, `clay_body`, `application`, `result` and `verdict` (keep, retest or reject). `version_id` picks the saved recipe version tested; without it the glaze's current recipe is used. The tile stores a copy of that recipe in `recipe`, and keeps it when the glaze changes. `PUT` changes only the fields sent; sending `version_id` (null for the current recipe) or a different `glaze_id` takes that recipe as the one tested.
+
+Tiles come back with `glaze_name` and `photos` (`id`, `url`, `created_at`), most recently fired first. Photos are uploaded as multipart form-data with the image in a `photo` field: JPEG, PNG or WebP, checked by content, up to 10 MB and 20 per tile. The browser app shrinks and re-encodes photos as JPEG before upload. Photo files are served from `/tile-photos/` under random names, cacheable indefinitely. Deleting a tile, or its glaze, deletes its photo files. Errors are 400 (`invalid_tile`, `invalid_photo`), 404 or 413 with a plain `message`.
+
+## Experiment uploads and photos
 
 ```http
 POST /api/upload

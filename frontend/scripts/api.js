@@ -113,6 +113,44 @@ const API = {
         return this._send('/batch-sheet', 'POST', data);
     },
 
+    // ---- Test tiles ----
+
+    getTiles() {
+        return this._send('/tiles');
+    },
+
+    createTile(data) {
+        return this._send('/tiles', 'POST', data);
+    },
+
+    updateTile(tileId, data) {
+        return this._send(`/tiles/${encodeURIComponent(tileId)}`, 'PUT', data);
+    },
+
+    deleteTile(tileId) {
+        return this._send(`/tiles/${encodeURIComponent(tileId)}`, 'DELETE');
+    },
+
+    // Multipart upload: the browser sets the Content-Type with its boundary
+    async addTilePhoto(tileId, blob) {
+        const form = new FormData();
+        form.append('photo', blob, 'tile.jpg');
+        const headers = this._token ? { Authorization: `Bearer ${this._token}` } : {};
+        try {
+            const resp = await fetch(`${this._baseUrl}/tiles/${encodeURIComponent(tileId)}/photos`, {
+                method: 'POST', headers, body: form,
+            });
+            const data = await resp.json().catch(() => null);
+            return { ok: resp.ok, status: resp.status, data };
+        } catch (e) {
+            return { ok: false, status: 0, data: { error: `Network error: ${e.message}` } };
+        }
+    },
+
+    deleteTilePhoto(tileId, photoId) {
+        return this._send(`/tiles/${encodeURIComponent(tileId)}/photos/${encodeURIComponent(photoId)}`, 'DELETE');
+    },
+
     // ---- Insight-Live import ----
 
     previewInsightLiveImport(csv) {

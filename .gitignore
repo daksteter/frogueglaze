@@ -109,3 +109,6 @@ temp/
 
 # Studio data and validation notes; never committed
 /private/
+
+# Test-tile photos (studio data; they live beside the database)
+tile-photos/

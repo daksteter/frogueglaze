@@ -49,6 +49,7 @@ It is not a contribution branch: changes here are not sent upstream, though self
 - API endpoints for the editor: `POST /api/chemistry/umf`, `GET /api/chemistry/materials`, and `GET`/`POST /api/glazes/<id>/versions` ([API reference](docs/API.md)).
 - A **Materials** view: every material's analysis, LOI and source. Each library analysis is marked as a supplier data sheet (linked), theoretical (calculated from the chemical formula), or unverified. The studio can add its own materials and record lot analyses; a lot in use replaces the standard analysis in every calculation. See the [user guide](docs/user-guide.md#materials).
 - **Batch sheets**: print any recipe scaled to a batch size, with a running total for weighing into one bucket, additions on top of the base, and the lot in use. See the [user guide](docs/user-guide.md#batch-sheets).
+- **Test tiles**: record each fired tile with the recipe it tested, firing, clay body, application, result, verdict and photos. Photos are shrunk in the browser, which also drops their location data. See the [user guide](docs/user-guide.md#test-tiles).
 - An **Insight-Live importer**: choose a recipe CSV exported from Insight-Live, check how each material name matched the library (and pick a material for any that didn't), then import the recipes as glazes. Additions are worked out from the amounts, and each glaze keeps its Insight-Live code and comments. See the [user guide](docs/user-guide.md#importing-recipes).
 - A larger library: 55 materials, 20 of them from supplier data sheets (Custer feldspar, nepheline syenite, EPK, Redart, bentonite, Hawthorn Bond, Old Hickory M-23, Alberta Slip, Ferro frits 3110/3124/3134/3195, Fusion frits F-2/F-12/F-19/F-69, Gerstley Borate, talc, wollastonite, ilmenite) and 29 calculated from chemical formulas. Six inherited entries are still marked unverified.
 
@@ -63,14 +64,14 @@ It is not a contribution branch: changes here are not sent upstream, though self
 
 - **UMF calculation:** upstream subtracted LOI twice: from the batch amount and again through the oxide percentages, which already exclude it. Whiting, clays and carbonates were undercounted. For Custer 45, Silica 25, Whiting 18, EPK 12, upstream reports Al₂O₃ 0.63 and SiO₂ 5.60; the correct values are 0.46 and 3.94.
 - The material library is one file, `ceramics-foundation/data/materials.json`, with a recorded source for every analysis. Upstream kept a separate hard-coded copy in the engine.
-- Docker Compose runs one app container, with the database and uploaded photos on named volumes (`openglaze_data`, `openglaze_uploads`).
+- Docker Compose runs one app container, with the database and test-tile photos on the `openglaze_data` volume and other uploads on `openglaze_uploads`.
 - Windows: data files are read as UTF-8, and each request's database connection is closed, so the app and its tests no longer trip over cp1252 decoding or locked files.
 
 ### Plans
 
 1. **Materials:** replace the remaining unverified analyses with supplier data sheets. DigitalFire's reference library is copyrighted and is not used.
 2. **Validation:** run real studio recipes through both tools and compare the UMF numbers.
-3. **Studio extras:** firing schedules and test-tile records with photos, plus a deployment on a studio computer with backups. (Batch sheets are done.)
+3. **Studio extras:** firing schedules, plus a deployment on a studio computer with backups. (Batch sheets and test tiles are done.)
 
 ### Staying in sync with upstream
 

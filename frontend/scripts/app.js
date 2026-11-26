@@ -23,6 +23,7 @@ let glazeTips = null;
 let recipeEditor = null;
 let materialsView = null;
 let importView = null;
+let tileView = null;
 
 // Sanitize HTML to prevent XSS — uses DOMPurify if available
 function safeHTML(str) {
@@ -99,6 +100,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         importView = new ImportView({ onImported: refreshGlazes, openGlaze: openRecipeEditor })
     } catch (e) {
         console.error('ImportView error:', e)
+    }
+
+    try {
+        tileView = new TileView({ getGlazes: () => state.glazes })
+    } catch (e) {
+        console.error('TileView error:', e)
     }
 
     // Load data from API
@@ -189,8 +196,8 @@ function switchView(view) {
     document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
         item.classList.toggle('active', item.dataset.view === view)
     })
-    // The recipe editor, materials and import have no stage filter and their own empty states
-    const ownLayout = view === 'editor' || view === 'materials' || view === 'import'
+    // These views have no stage filter and their own empty states
+    const ownLayout = ['editor', 'materials', 'import', 'tiles'].includes(view)
     document.getElementById('stage-bar').style.display = ownLayout ? 'none' : ''
     if (ownLayout) document.getElementById('empty-state').style.display = 'none'
 
@@ -204,8 +211,8 @@ function switchView(view) {
     } else if (view === 'archive') {
         renderArchiveView()
         if (glazeTips) glazeTips.hide()
-    } else if (view === 'photos') {
-        renderPhotosView()
+    } else if (view === 'tiles') {
+        if (tileView) tileView.render(document.getElementById('canvas'))
         if (glazeTips) glazeTips.hide()
     } else if (view === 'studio') {
         renderStudioView()
@@ -228,6 +235,12 @@ async function renderRecipeEditorView() {
     if (!recipeEditor) return
     if (!recipeEditor.loaded) await recipeEditor.load(null)
     await recipeEditor.render(document.getElementById('canvas'))
+}
+
+// Show one glaze's test tiles (from a glaze card)
+function openTileView(glazeId) {
+    if (tileView) tileView.showGlaze(glazeId)
+    switchView('tiles')
 }
 
 // Open a glaze in the recipe editor (from a glaze card)
@@ -353,6 +366,12 @@ function renderGlazesView() {
                     }))
                     card.appendChild(sheetButton)
                 }
+                const tilesButton = document.createElement('button')
+                tilesButton.type = 'button'
+                tilesButton.className = 'btn btn-secondary glaze-edit-recipe glaze-tiles'
+                tilesButton.textContent = 'Test tiles'
+                tilesButton.addEventListener('click', () => openTileView(glaze.id))
+                card.appendChild(tilesButton)
                 grid.appendChild(card)
             })
 
@@ -386,18 +405,6 @@ function renderArchiveView() {
             })
         })
     }
-}
-
-async function renderPhotosView() {
-    const canvas = document.getElementById('canvas')
-    const emptyState = document.getElementById('empty-state')
-
-    canvas.innerHTML = ''
-    emptyState.style.display = 'none'
-
-    const gallery = new PhotoGallery(canvas)
-    await gallery.load()
-    gallery.render()
 }
 
 function renderStudioView() {

@@ -205,6 +205,35 @@ CREATE TABLE IF NOT EXISTS studio_state (
     value INTEGER NOT NULL DEFAULT 0
 );
 
+-- Test tiles: one fired test of a glaze. ``recipe`` is a copy of the recipe
+-- as tested (and ``version_id`` the saved version it came from, if any), so
+-- later edits to the glaze don't change the record. Checked in core/tiles.py.
+CREATE TABLE IF NOT EXISTS test_tiles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    glaze_id TEXT NOT NULL REFERENCES glazes(id) ON DELETE CASCADE,
+    version_id INTEGER REFERENCES recipe_versions(id) ON DELETE SET NULL,
+    recipe TEXT,
+    label TEXT,                  -- what's written on the tile
+    fired_on TEXT,               -- YYYY-MM-DD
+    cone TEXT,
+    atmosphere TEXT,
+    kiln TEXT,                   -- kiln and firing
+    clay_body TEXT,
+    application TEXT,            -- dips, coats, thickness, specific gravity
+    result TEXT,                 -- what came out of the kiln
+    verdict TEXT,                -- keep, retest, reject, or NULL (not judged)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tile photos: files in the tile-photos folder beside the database
+CREATE TABLE IF NOT EXISTS tile_photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tile_id INTEGER NOT NULL REFERENCES test_tiles(id) ON DELETE CASCADE,
+    filename TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==========================================================================
 -- INDEXES
 -- ==========================================================================
@@ -227,3 +256,5 @@ CREATE INDEX IF NOT EXISTS idx_recipe_versions_glaze ON recipe_versions(glaze_id
 CREATE INDEX IF NOT EXISTS idx_glaze_imports_code ON glaze_imports(source, source_code);
 CREATE INDEX IF NOT EXISTS idx_glaze_imports_glaze ON glaze_imports(glaze_id);
 CREATE INDEX IF NOT EXISTS idx_material_lots_key ON material_lots(material_key, id);
+CREATE INDEX IF NOT EXISTS idx_test_tiles_glaze ON test_tiles(glaze_id);
+CREATE INDEX IF NOT EXISTS idx_tile_photos_tile ON tile_photos(tile_id, id);

@@ -15,6 +15,7 @@ from core.experiments import ExperimentManager
 from core.ai.context import ContextRetriever
 from core.security import init_security
 from core.studio_materials import sync_engine
+from core.tiles import default_photos_dir
 from webapp.db import get_db_connection, init_db
 from webapp.helpers import get_current_user_id
 from webapp.routes import ALL_BLUEPRINTS
@@ -66,6 +67,10 @@ def create_app(config: dict = None) -> Flask:
     # Database path (routes read this via current_app.config)
     db_path = config.get("database", {}).get("path", "glaze.db")
     app.config["DATABASE_PATH"] = db_path
+    # Test-tile photos: beside the database unless TILE_PHOTOS_PATH says otherwise
+    app.config["TILE_PHOTOS_PATH"] = os.environ.get(
+        "TILE_PHOTOS_PATH"
+    ) or default_photos_dir(db_path)
 
     _configure_cors(app)
 

@@ -3,11 +3,12 @@
 import logging
 import sqlite3
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, current_app, g, jsonify, request
 
 from core.errors import error_payload
 from core.glazes import Glaze
 from core.security import rate_limit
+from core.tiles import glaze_photo_files, remove_photo_files
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +71,11 @@ def update_glaze(glaze_id: str):
 @bp.route("/api/glazes/<glaze_id>", methods=["DELETE"])
 @rate_limit(requests_per_minute=30)
 def delete_glaze(glaze_id: str):
-    """Delete a glaze."""
-
+    """Delete a glaze, with its versions, test tiles and their photo files."""
+    photos = glaze_photo_files(current_app.config["DATABASE_PATH"], glaze_id)
     success = g.glaze_manager.delete(glaze_id)
     if success:
+        remove_photo_files(current_app.config["TILE_PHOTOS_PATH"], photos)
         return jsonify({"success": True})
     return jsonify({"error": "Delete failed"}), 400
 

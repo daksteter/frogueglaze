@@ -47,7 +47,7 @@ test('OpenGlaze UI smoke', async () => {
 
   for (const view of [
     'glazes',
-    'photos',
+    'tiles',
     'studio',
     'progress',
     'predictions',

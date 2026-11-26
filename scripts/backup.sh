@@ -1,6 +1,6 @@
 #!/bin/bash
 # OpenGlaze Backup Script
-# Backs up the default SQLite database and uploaded files.
+# Backs up the default SQLite database, test-tile photos and uploaded files.
 
 set -euo pipefail
 
@@ -9,6 +9,8 @@ DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_NAME="openglaze_backup_${DATE}"
 DB_PATH="${DATABASE_PATH:-glaze.db}"
 UPLOAD_DIR="${UPLOAD_DIR:-frontend/uploads}"
+# Test-tile photos live beside the database unless TILE_PHOTOS_PATH says otherwise
+TILE_PHOTOS_DIR="${TILE_PHOTOS_PATH:-$(dirname "$DB_PATH")/tile-photos}"
 
 mkdir -p "$BACKUP_DIR"
 
@@ -17,6 +19,7 @@ echo "  OpenGlaze Backup"
 echo "================================================"
 echo "Database: $DB_PATH"
 echo "Uploads:  $UPLOAD_DIR"
+echo "Tile photos: $TILE_PHOTOS_DIR"
 echo ""
 
 workdir=$(mktemp -d)
@@ -34,6 +37,13 @@ if [ -d "$UPLOAD_DIR" ]; then
     echo "  ✓ Uploads archived"
 else
     echo "  ! Upload directory not found at $UPLOAD_DIR; skipping uploads"
+fi
+
+if [ -d "$TILE_PHOTOS_DIR" ]; then
+    tar -czf "$workdir/${BACKUP_NAME}_tile_photos.tar.gz" -C "$(dirname "$TILE_PHOTOS_DIR")" "$(basename "$TILE_PHOTOS_DIR")"
+    echo "  ✓ Tile photos archived"
+else
+    echo "  ! No tile photos at $TILE_PHOTOS_DIR; skipping"
 fi
 
 if [ -f ".env" ]; then
