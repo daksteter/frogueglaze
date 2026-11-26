@@ -1,0 +1,116 @@
+/* Insight-Live import view. Uses the list table (.mv-table) and source
+   styles from materials.css, and hint/alert styles from recipe-editor.css. */
+
+.import-view {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.import-view .card:hover {
+    transform: none;
+}
+
+.import-view h3 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-2);
+}
+
+.import-view select {
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    max-width: 100%;
+}
+
+.import-view select:focus {
+    outline: none;
+    border-color: var(--terracotta);
+}
+
+.iv-file {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-3) 0;
+    font-size: var(--text-sm);
+}
+
+.iv-summary p {
+    font-size: var(--text-sm);
+    margin-top: var(--space-1);
+}
+
+.import-view .mv-table tbody tr {
+    cursor: default;
+}
+
+.import-view .mv-table tbody tr:hover {
+    background: none;
+}
+
+.iv-materials tr.iv-unmatched {
+    background: color-mix(in srgb, var(--amber) 12%, var(--card));
+}
+
+.iv-materials tr.iv-unmatched:hover {
+    background: color-mix(in srgb, var(--amber) 12%, var(--card));
+}
+
+.iv-note {
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--amber);
+}
+
+.iv-recipe {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.iv-recipe .re-addition {
+    color: var(--text-secondary);
+}
+
+.iv-recipe .iv-missing {
+    color: var(--amber);
+    font-weight: 600;
+}
+
+.iv-notes {
+    max-width: 320px;
+}
+
+.iv-action-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-2);
+}
+
+.iv-cone {
+    font-size: var(--text-sm);
+}
+
+.iv-result {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3);
+}
+
+.iv-result li {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.iv-result .btn-ghost {
+    margin-left: var(--space-3);
+}

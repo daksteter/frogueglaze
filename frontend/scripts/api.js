@@ -109,6 +109,16 @@ const API = {
         return this._send(`/materials/${encodeURIComponent(key)}/lots/${lotId}`, 'DELETE');
     },
 
+    // ---- Insight-Live import ----
+
+    previewInsightLiveImport(csv) {
+        return this._send('/import/insight-live/preview', 'POST', { csv });
+    },
+
+    importInsightLive(data) {
+        return this._send('/import/insight-live', 'POST', data);
+    },
+
     // ---- Existing ----
 
     async getGlazes() {

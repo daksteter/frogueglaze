@@ -190,6 +190,38 @@ Names and aliases must not clash with existing materials. Oxides must be ones th
 
 The CLI and MCP server calculate with the published library only.
 
+## Insight-Live import
+
+```http
+POST /api/import/insight-live/preview
+POST /api/import/insight-live
+```
+
+Both take the text of a recipe CSV exported from DigitalFire Insight-Live as `csv`; the server keeps nothing between the two calls. The export has one row per recipe (`Code`, `Name`, `Description`, `Date`, `Batch`, `Location`, one column per material, `Batch total (g)`, `Comments`). Columns other than those fixed ones are read as materials when every value in them is a number, and listed in `ignored_columns` otherwise.
+
+The preview writes nothing. It returns:
+
+- `recipes`: each with `row` (the line it starts on, used to choose recipes), `code`, `name`, `description`, `date`, `comments`, `materials` (`name`, `amount`, `addition`), `additions` (`none`, `found` or `unclear`), `base_total`, `additions_total`, `warnings`, and `existing` (null, or the glaze it would duplicate, with `reason` `code` when that Insight-Live code was imported before or `name` when a glaze has the same name).
+- `materials`: each export material name with the `key` and `material` name it matched (null when unmatched), `partial` (only a leading part of the name matched), `source_type`, and how many `recipes` use it.
+- `unmatched`: the material names that didn't match.
+
+The export doesn't mark additions. The base is the leading materials that add up to 100 (within 0.1), or failing that the one combination that does; the rest are additions. When neither works, `additions` is `unclear` and every material is imported as base.
+
+`POST /api/import/insight-live` creates a glaze for each chosen recipe, in one transaction:
+
+```json
+{
+  "csv": "Code,Name,...",
+  "rows": [2, 5],
+  "mapping": {"Tile #6 Kaolin": "epk"},
+  "cone": "6"
+}
+```
+
+`mapping` (optional) maps export material names to our material keys; unmapped names keep the export's spelling. `cone` (optional) is stored on every imported glaze. The response (201) lists `imported` glazes with `id`, `name`, `code`, `recipe` and `missing` (material names the calculator doesn't know yet). Each glaze gets the Insight-Live code, date, description and comments in its notes, a first recipe version noted "Imported from Insight-Live (code)", and a row in `glaze_imports` keeping the recipe as the export had it.
+
+Errors are 400 with a plain `message` alongside `error`.
+
 ## Experiments
 
 ```http

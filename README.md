@@ -48,6 +48,7 @@ It is not a contribution branch: changes here are not sent upstream, though self
 - **Additions** in recipes: a leading `+` marks a colorant or opacifier listed after the base, for example `Custer Feldspar 45, Silica 25, Whiting 18, EPK 12, +Red Iron Oxide 2`.
 - API endpoints for the editor: `POST /api/chemistry/umf`, `GET /api/chemistry/materials`, and `GET`/`POST /api/glazes/<id>/versions` ([API reference](docs/API.md)).
 - A **Materials** view: every material's analysis, LOI and source. Each library analysis is marked as a supplier data sheet (linked), theoretical (calculated from the chemical formula), or unverified. The studio can add its own materials and record lot analyses; a lot in use replaces the standard analysis in every calculation. See the [user guide](docs/user-guide.md#materials).
+- An **Insight-Live importer**: choose a recipe CSV exported from Insight-Live, check how each material name matched the library (and pick a material for any that didn't), then import the recipes as glazes. Additions are worked out from the amounts, and each glaze keeps its Insight-Live code and comments. See the [user guide](docs/user-guide.md#importing-recipes).
 - A larger library: 55 materials, 20 of them from supplier data sheets (Custer feldspar, nepheline syenite, EPK, Redart, bentonite, Hawthorn Bond, Old Hickory M-23, Alberta Slip, Ferro frits 3110/3124/3134/3195, Fusion frits F-2/F-12/F-19/F-69, Gerstley Borate, talc, wollastonite, ilmenite) and 29 calculated from chemical formulas. Six inherited entries are still marked unverified.
 
 **Removed**
@@ -67,9 +68,8 @@ It is not a contribution branch: changes here are not sent upstream, though self
 ### Plans
 
 1. **Materials:** replace the remaining unverified analyses with supplier data sheets. DigitalFire's reference library is copyrighted and is not used.
-2. **Insight-Live importer:** read an Insight-Live export, map its material names, and report anything that didn't match.
-3. **Validation:** run real studio recipes through both tools and compare the UMF numbers.
-4. **Studio extras:** printable batch sheets, firing schedules, and test-tile records with photos, plus a deployment with backups.
+2. **Validation:** run real studio recipes through both tools and compare the UMF numbers.
+3. **Studio extras:** printable batch sheets, firing schedules, and test-tile records with photos, plus a deployment with backups.
 
 ### Staying in sync with upstream
 

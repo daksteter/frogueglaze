@@ -1,4 +1,4 @@
-const CACHE_NAME = 'openglaze-v6';
+const CACHE_NAME = 'openglaze-v7';
 
 const STATIC_ASSETS = [
     '/',
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
     '/styles/tips.css',
     '/styles/recipe-editor.css',
     '/styles/materials.css',
+    '/styles/import.css',
     '/scripts/data.js',
     '/scripts/api.js',
     '/scripts/components/GlazeSwatch.js',
@@ -25,6 +26,7 @@ const STATIC_ASSETS = [
     '/scripts/components/GlazeTips.js',
     '/scripts/components/RecipeEditor.js',
     '/scripts/components/MaterialsView.js',
+    '/scripts/components/ImportView.js',
     '/scripts/PhotoUploadForm.js',
     '/scripts/PhotoGallery.js',
     '/scripts/app.js',

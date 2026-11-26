@@ -157,6 +157,20 @@ CREATE TABLE IF NOT EXISTS recipe_versions (
 );
 
 -- Studio materials: the studio's own materials, added to the published library
+-- Where imported glazes came from (Insight-Live CSV exports). One row per
+-- imported recipe; ``original`` keeps the recipe as the export had it (JSON
+-- list of {name, amount, addition}) so imports can be checked later.
+CREATE TABLE IF NOT EXISTS glaze_imports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    glaze_id TEXT NOT NULL REFERENCES glazes(id) ON DELETE CASCADE,
+    source TEXT NOT NULL,
+    source_code TEXT,
+    source_name TEXT,
+    source_date TEXT,
+    original TEXT,
+    imported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS custom_materials (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     material_key TEXT NOT NULL UNIQUE,   -- lowercase name, as used in recipes
@@ -210,4 +224,6 @@ CREATE INDEX IF NOT EXISTS idx_studio_members_user ON studio_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_studio ON lab_assignments(studio_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_combo ON lab_assignments(combination_id);
 CREATE INDEX IF NOT EXISTS idx_recipe_versions_glaze ON recipe_versions(glaze_id, id);
+CREATE INDEX IF NOT EXISTS idx_glaze_imports_code ON glaze_imports(source, source_code);
+CREATE INDEX IF NOT EXISTS idx_glaze_imports_glaze ON glaze_imports(glaze_id);
 CREATE INDEX IF NOT EXISTS idx_material_lots_key ON material_lots(material_key, id);

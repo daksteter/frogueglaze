@@ -30,6 +30,8 @@ studio, so features are judged by whether that studio needs them.
    F-4, generic Ball Clay, Barnard, Alkalifritte M1233, rutile. Spodumene is
    theoretical only: no supplier sheet could be sourced.)
 4. An Insight-Live export importer that reports unmatched material names.
+   (Built 2026-11-25 from a one-recipe sample export; check the column order
+   and addition detection against a multi-recipe export.)
 5. Validate UMF output against Insight-Live using real studio recipes.
 6. Printable batch sheets, firing schedules, test-tile records with photos.
 
@@ -96,6 +98,13 @@ what is implemented from what is planned.
   `recipe_versions`). Recipes stay plain strings in `glazes.recipe`; a leading
   `+` marks an addition. New frontend files must also go in the precache list
   in `frontend/sw.js`, or its install fails.
+- Insight-Live importer: `core/insight_live.py` reads the recipe CSV (one row
+  per recipe, one column per material, no additions or cone marked) and
+  matches names with `match_material_key()`, the calculator's own lookup.
+  `core/glazes/importer.py` previews and writes glazes, a first version and a
+  `glaze_imports` row (code + original amounts); routes in
+  `webapp/routes/imports.py`, UI in `frontend/scripts/components/ImportView.js`.
+  Tests use a made-up export; keep the studio's real recipes out of the repo.
 
 ## Cautions
 

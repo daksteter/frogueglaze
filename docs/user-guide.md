@@ -31,7 +31,7 @@ When you first access OpenGlaze:
 The interface consists of:
 
 - **Header** — Search (⌘K), AI assistant toggle, PWA install button
-- **Sidebar** — Main views: Combinations, All Glazes, Photos, Studio, Experiments
+- **Sidebar** — Main views: Combinations, All Glazes, Recipe editor, Materials, Import, Photos, Studio
 - **Main Content** — Context-aware based on selected view
 - **Command Palette** — Press ⌘K (or Ctrl+K) for quick navigation
 
@@ -94,12 +94,14 @@ Open **Recipe editor** in the sidebar for a new recipe, or **Edit recipe** on an
 
 ### Importing Recipes
 
-Import from common formats:
+Open **Import** in the sidebar to bring recipes over from DigitalFire Insight-Live. Export your recipes from Insight-Live as CSV, then choose that file. Nothing is saved until you press **Import**.
 
-- **JSON/CSV** — Export from OpenGlaze dashboard
-- **YAML** — OpenGlaze native format
-- **Glazy CSV** — Planned (roadmap)
-- **Digitalfire INSIGHT** — Planned (roadmap)
+- **Materials:** every material name in the file is listed with the library material it matched and that material's source. Matched names keep Insight-Live's spelling in the recipe, since the calculator reads them the same way. Names marked *Matched on part of the name* are worth a look. For a name that didn't match, pick one of our materials, or keep the name: the recipe then calculates once a studio material with that name (or alias) is added under **Materials**.
+- **Additions:** Insight-Live's CSV doesn't mark additions, so they are worked out from the amounts. The base is the materials that add up to 100; the rest become additions (`+`). If the amounts don't single out one set that adds up to 100, everything is imported as base and the recipe is flagged, so mark the additions in the recipe editor.
+- **Recipes:** tick the recipes to import. A recipe imported before (same Insight-Live code) is left unticked; importing it again adds a second copy.
+- **Cone:** the export has no firing cone. The cone you choose is stored with every recipe in that import and can be changed per recipe in the recipe editor.
+
+Each imported glaze keeps its Insight-Live code, date, description and comments in its notes, and its first saved version is the recipe as imported.
 
 ### Materials
 

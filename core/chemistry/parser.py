@@ -8,7 +8,7 @@ into structured material:amount dictionaries.
 import re
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from .materials import get_material, resolve_material_key
 
@@ -215,16 +215,26 @@ class RecipeParser:
 
     def _canonical_name(self, name: str) -> str:
         """Get the canonical lowercase name for a material."""
-        key = resolve_material_key(name)
+        key, _partial = match_material_key(name)
+        return key or name.strip().lower()
+
+
+def match_material_key(name: str) -> Tuple[Optional[str], bool]:
+    """Resolve a material name the way recipes are read.
+
+    Tries the whole name, then progressively shorter leading parts, so
+    "Silica 325 mesh" finds silica. Returns ``(key, partial)``, where
+    ``partial`` is True when only a shorter part matched, or ``(None, False)``.
+    """
+    key = resolve_material_key(name)
+    if key:
+        return key, False
+    words = name.strip().split()
+    for i in range(len(words) - 1, 0, -1):
+        key = resolve_material_key(" ".join(words[:i]))
         if key:
-            return key
-        # Try progressively shorter names (same logic as _lookup_material)
-        words = name.strip().split()
-        for i in range(len(words) - 1, 0, -1):
-            key = resolve_material_key(" ".join(words[:i]))
-            if key:
-                return key
-        return name.strip().lower()
+            return key, True
+    return None, False
 
 
 # Module-level convenience function
