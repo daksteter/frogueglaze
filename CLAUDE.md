@@ -35,6 +35,12 @@ studio, so features are judged by whether that studio needs them.
    code order, not each recipe's own order, so additions are often picked
    by material type and flagged "guessed".)
 5. Validate UMF output against Insight-Live using real studio recipes.
+   (Done 2026-11-25 with seven recipes: the UMF math matches Insight-Live
+   to its display rounding; library differences stay under about 0.03 and
+   trace to specific materials. Expansion runs 0.5-1.6 lower than
+   Insight-Live's, a model difference. Still needed: supplier analyses
+   for Tile #6 Kaolin and OM#4. The report and her data are in the
+   git-ignored `private/` folder.)
 6. Printable batch sheets, firing schedules, test-tile records with photos.
 
 Removed from the fork on 2026-11-25; don't bring them back, including when
@@ -79,7 +85,9 @@ what is implemented from what is planned.
   copy. Every entry records `source.type`: `supplier` (url, document, date; never
   digitalfire.com or glazy.org), `theoretical` (formula + yields, computed by
   `core/chemistry/formulas.py`), or `unverified`. `tests/test_materials_data.py`
-  checks sources, formula math, totals and alias clashes. Analyses are as
+  checks sources, formula math, totals and alias clashes. Names also match
+  with spaces and punctuation ignored ("OM#4" finds "om4"), unless two
+  materials share that form. Analyses are as
   received: oxide % + LOI = 100, and UMF uses the oxide % directly (never
   subtract LOI again).
 - Studio materials and lot analyses: `core/studio_materials.py` (tables

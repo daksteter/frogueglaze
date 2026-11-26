@@ -1,5 +1,6 @@
 """Material database with oxide compositions and molecular weights for ceramic glaze chemistry."""
 
+import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -133,15 +134,30 @@ def _load_library() -> Dict[str, Material]:
 LIBRARY: Dict[str, Material] = _load_library()
 
 
+def _compact(text: str) -> str:
+    """A name with spaces and punctuation removed: 'OM #4' and 'OM4' -> 'om4'."""
+    return re.sub(r"[^a-z0-9]", "", text.lower())
+
+
 class _Tables:
     """An immutable snapshot of the effective materials and their aliases."""
 
     def __init__(self, materials: Dict[str, Material]):
         self.materials = materials
         self.aliases: Dict[str, str] = {}
+        # Names and aliases with spaces and punctuation removed; a compact form
+        # shared by two materials is left out rather than guessed.
+        self.compact: Dict[str, str] = {}
+        shared = set()
         for canonical, material in materials.items():
             for alias in material.aliases:
                 self.aliases.setdefault(alias.lower(), canonical)
+            for label in (canonical, *material.aliases):
+                key = _compact(label)
+                if key and self.compact.setdefault(key, canonical) != canonical:
+                    shared.add(key)
+        for key in shared:
+            del self.compact[key]
 
 
 _tables = _Tables(dict(LIBRARY))
@@ -191,7 +207,8 @@ def resolve_material_key(name: str) -> Optional[str]:
             return stripped
         if stripped in tables.aliases:
             return tables.aliases[stripped]
-    return None
+    # Spelling variants: "OM#4" for "OM4", "Ferro Frit #3134", "F 12"
+    return tables.compact.get(_compact(normalized))
 
 
 def get_material(name: str) -> Optional[Material]:

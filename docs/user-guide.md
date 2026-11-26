@@ -121,6 +121,8 @@ The Unity Molecular Formula (UMF) normalizes glaze recipes to compare them on eq
 
 Analyses are as received: a material's oxide percentages and its LOI together make up the raw material (whiting is 56% CaO and 44% LOI). The oxide percentages are used directly, so what burns off is never counted twice.
 
+**Thermal expansion** is an estimate from the oxides (the Appen molar method with John Sankey's values), for comparing glazes within this app. It is not a measurement. It reads about 0.5–1.6 lower than Insight-Live's figures for the same recipe, most in glazes with zircon, tin or rutile, which this method treats as dissolved in the glass. Don't hold it against glaze-fit notes made with Insight-Live's numbers, and test fit on the clay body.
+
 **Interpreting UMF:**
 
 | SiO₂:Al₂O₃ Ratio | Typical Surface |

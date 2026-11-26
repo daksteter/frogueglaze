@@ -27,6 +27,25 @@ class TestParser:
         assert "epk" in result.materials
         assert "epk kaolin" not in result.materials
 
+    def test_names_match_without_spaces_or_punctuation(self):
+        """Insight-Live spellings like "OM#4" find "OM4"; shared forms don't guess."""
+        from core.chemistry.materials import (
+            Material,
+            resolve_material_key,
+            set_studio_materials,
+        )
+
+        assert resolve_material_key("OM#4") == "ball clay"  # alias "om4"
+        assert resolve_material_key("Ferro Frit #3134") == "ferro frit 3134"
+        assert resolve_material_key("EP Kaolin") == "epk"
+        set_studio_materials(
+            custom=[
+                Material("Glaze Clay-1", [], {"SiO2": 60}),
+                Material("Glaze Clay 1"),
+            ]
+        )
+        assert resolve_material_key("glazeclay1") is None
+
     def test_parse_unknown_material_warns(self):
         result = parse_recipe_string("Custer Feldspar 50, Unobtainium 25, Silica 25")
         assert result.success is True  # Partial parse succeeds

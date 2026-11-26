@@ -1,4 +1,4 @@
-const CACHE_NAME = 'openglaze-v8';
+const CACHE_NAME = 'openglaze-v9';
 
 const STATIC_ASSETS = [
     '/',

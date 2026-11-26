@@ -426,7 +426,10 @@ class RecipeEditor {
             ['Surface', r.surface_prediction || '—'],
             ['Flux : Al₂O₃', reNumber(ratios.flux_al2o3, 2)],
         ].forEach(([term, value]) => keys.append(reEl('dt', null, term), reEl('dd', null, value)));
-        out.append(keys, this._umfTable(r.umf_formula));
+        out.append(keys, reEl('p', 're-hint re-cte-note',
+            'Expansion is an estimate (Appen method, Sankey\'s values) for comparing glazes in this app. ' +
+            'It reads 0.5–1.6 lower than Insight-Live\'s figures, most with zircon, tin or rutile.'),
+        this._umfTable(r.umf_formula));
 
         const limits = r.limit_warnings || [];
         if (limits.length) {
