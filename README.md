@@ -1,10 +1,6 @@
-# OpenGlaze
+# frogueglaze
 
-<p align="center">
-  <img src="branding/openglaze-512.png" alt="openglaze icon" width="128">
-</p>
-
-> OpenGlaze is a free, open-source, self-hosted ceramic glaze calculator, recipe manager, and UMF analyzer for potters, ceramic artists, and studios.
+> **A custom fork of [OpenGlaze](https://github.com/KyaniteLabs/openglaze)**, the free, open-source, self-hosted ceramic glaze calculator, trimmed and extended for one pottery studio moving off DigitalFire Insight-Live. The app still calls itself OpenGlaze. See [About this fork](#about-this-fork) for what's different from upstream.
 
 **TL;DR:** OpenGlaze — open-source ceramic glaze calculator (UMF, CTE, recipe optimizer) you can self-host. Best for potters, ceramic artists, studios, and educators.
 
@@ -17,12 +13,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/KyaniteLabs/openglaze/actions/workflows/ci.yml">
-    <img src="https://github.com/KyaniteLabs/openglaze/actions/workflows/ci.yml/badge.svg" alt="CI">
-  </a>
-  <a href="https://github.com/KyaniteLabs/openglaze/releases">
-    <img src="https://img.shields.io/github/v/release/KyaniteLabs/openglaze?include_prereleases" alt="Latest Release">
-  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
   </a>
@@ -32,18 +22,60 @@
   <a href="https://www.docker.com/">
     <img src="https://img.shields.io/badge/Docker-Ready-blue" alt="Docker Ready">
   </a>
-  <a href="https://github.com/KyaniteLabs/openglaze/stargazers">
-    <img src="https://img.shields.io/github/stars/KyaniteLabs/openglaze" alt="GitHub Stars">
-  </a>
 </p>
 
 <p align="center">
+  <a href="#about-this-fork">About this fork</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="#features">Features</a> •
   <a href="#documentation">Docs</a> •
-  <a href="#self-hosting">Self-Host</a> •
-  <a href="#contributing">Contribute</a>
+  <a href="#self-hosting">Self-Host</a>
 </p>
+
+---
+
+## About this fork
+
+frogueglaze is a fork of [KyaniteLabs/openglaze](https://github.com/KyaniteLabs/openglaze), taken from upstream `master` at commit `dd56e41` (2026-11-23). It exists to help one pottery studio replace DigitalFire Insight-Live, and features are kept, cut or added by whether that studio needs them.
+
+It is not a contribution branch: changes here are not sent upstream, though self-contained pieces such as the Insight-Live importer may be offered back later. If you want the full OpenGlaze product, use [upstream](https://github.com/KyaniteLabs/openglaze).
+
+### What's different from upstream
+
+**Added**
+
+- A **recipe editor** with live chemistry: UMF, SiO₂:Al₂O₃, estimated CTE, surface prediction and cone limit checks update as you type. Every save is kept as a version with a note, and any version or other glaze can be compared side by side. See the [user guide](docs/user-guide.md#the-recipe-editor).
+- **Additions** in recipes: a leading `+` marks a colorant or opacifier listed after the base, for example `Custer Feldspar 45, Silica 25, Whiting 18, EPK 12, +Red Iron Oxide 2`.
+- API endpoints for the editor: `POST /api/chemistry/umf`, `GET /api/chemistry/materials`, and `GET`/`POST /api/glazes/<id>/versions` ([API reference](docs/API.md)).
+
+**Removed**
+
+- Gamification: points, badges, streaks, leaderboards and the progress tracker.
+- The prediction market (`/api/predictions*`). AI predictions for glaze combinations stay.
+- The SEO landing pages and discovery files (sitemap, robots.txt, llms.txt), and the routes that served them.
+- Cloud mode, with its Ory Kratos auth and PostgreSQL. The app runs in personal mode on SQLite; studio features use the simple display-name sign-in.
+
+**Changed and fixed**
+
+- Docker Compose runs one app container, with the database and uploaded photos on named volumes (`openglaze_data`, `openglaze_uploads`).
+- Windows: data files are read as UTF-8, and each request's database connection is closed, so the app and its tests no longer trip over cp1252 decoding or locked files.
+
+### Plans
+
+1. **Materials:** a larger library from supplier data sheets, recording the source of each analysis, plus custom materials and lot analyses with LOI. DigitalFire's reference library is copyrighted and is not used.
+2. **Insight-Live importer:** read an Insight-Live export, map its material names, and report anything that didn't match.
+3. **Validation:** run real studio recipes through both tools and compare the UMF numbers.
+4. **Studio extras:** printable batch sheets, firing schedules, and test-tile records with photos, plus a deployment with backups.
+
+### Staying in sync with upstream
+
+```bash
+git remote add upstream https://github.com/KyaniteLabs/openglaze.git
+git fetch upstream
+git merge upstream/master
+```
+
+When a merge touches the removed features, keep them deleted.
 
 ---
 
@@ -73,7 +105,7 @@ Built by potters, for potters. Your glaze recipes stay on your infrastructure. N
 - 🔓 **Truly open** — MIT licensed, no proprietary lock-in, full source code available
 - 🧮 **Computational chemistry** — UMF calculator, CTE prediction, and recipe optimizer using stoichiometric analysis — not guesswork
 - 🧠 **AI-powered** — Kama assistant understands glaze chemistry and answers technical questions
-- 🎨 **Studio-ready** — Multi-user collaboration, role-based access, shared glaze libraries
+- 🎨 **Studio-ready** — Studio groups, invite codes, lab assignments and shared glaze libraries
 - ☕ **Free forever** — No paywalls, no subscriptions, no feature gates. Voluntary support only.
 
 ## What is OpenGlaze?
@@ -105,9 +137,9 @@ OpenGlaze is not a replacement for these tools — it complements them. Many use
 The Docker path is a single-user, self-hosted install: the app keeps its SQLite database and uploaded photos on the named volumes `openglaze_data` and `openglaze_uploads`. The defaults in `.env.example` work out of the box on a fresh clone; set a real `SECRET_KEY` before exposing the app publicly.
 
 ```bash
-# Clone the repository
-git clone https://github.com/KyaniteLabs/openglaze.git
-cd openglaze
+# Clone this fork
+git clone https://github.com/daksteter/frogueglaze.git
+cd frogueglaze
 
 # Copy environment file and set a real SECRET_KEY before public use
 cp .env.example .env
@@ -313,12 +345,6 @@ OpenGlaze is designed for self-hosting. All components are open source.
 
 See [docs/self-hosting.md](docs/self-hosting.md) for detailed deployment instructions for each platform.
 
-## Support the Project
-
-OpenGlaze is free and open source. If it saves you materials, time, or a failed kiln load, consider starring the repo or contributing a recipe.
-
-No pressure — the tool is yours either way.
-
 ## Customizing Glaze Collections
 
 Glaze templates live in `core/templates/` and `templates/`. To add your own:
@@ -371,23 +397,7 @@ The test suite covers:
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-Quick start:
-
-```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/openglaze.git
-cd openglaze
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run tests
-pytest tests/
-
-# Make changes and submit a PR
-```
+This fork is maintained for one studio and isn't looking for contributions. To contribute to OpenGlaze itself, see [upstream](https://github.com/KyaniteLabs/openglaze) and its contributing guide.
 
 ## Security
 
@@ -395,10 +405,10 @@ See [SECURITY.md](SECURITY.md) for our security policy and vulnerability reporti
 
 ## Support
 
-Questions, bug reports, and feature requests:
+This fork has no public issue tracker. For OpenGlaze in general:
 
-- [GitHub Discussions](https://github.com/KyaniteLabs/openglaze/discussions) — Community help
-- [GitHub Issues](https://github.com/KyaniteLabs/openglaze/issues) — Bug reports and feature requests
+- [Upstream discussions](https://github.com/KyaniteLabs/openglaze/discussions) — community help
+- [Upstream issues](https://github.com/KyaniteLabs/openglaze/issues) — bugs in OpenGlaze itself (check that they also happen upstream before reporting)
 
 ## License
 
@@ -412,6 +422,7 @@ the repository — see [templates/README.md](templates/README.md#licensing).
 
 ## Acknowledgments
 
+- [OpenGlaze](https://github.com/KyaniteLabs/openglaze) by KyaniteLabs, which this fork is built on
 - The ceramics community for sharing knowledge and recipes
 - Contributors who have helped build OpenGlaze
 - [Ceramic Arts Network](https://ceramicartsnetwork.org/) for glaze chemistry references
@@ -424,75 +435,6 @@ the repository — see [templates/README.md](templates/README.md#licensing).
 </p>
 
 <p align="center">
-  <a href="https://github.com/KyaniteLabs/openglaze">GitHub</a> •
-  <a href="https://github.com/KyaniteLabs/openglaze/discussions">Discussions</a>
+  <a href="https://github.com/daksteter/frogueglaze">This fork</a> •
+  <a href="https://github.com/KyaniteLabs/openglaze">Upstream OpenGlaze</a>
 </p>
-
----
-
-## Part of KyaniteLabs
-
-More from [KyaniteLabs](https://kyanitelabs.tech). Related projects:
-
-- **[Innerscape](https://github.com/KyaniteLabs/Innerscape)** — personal-growth OS: journaling & reflection
-- **[Elixis](https://github.com/KyaniteLabs/Elixis)** — local-first AI pattern-synthesis engine for ideas
-- **[kinocut](https://github.com/KyaniteLabs/kinocut)** — guardrailed video-editing MCP server for AI agents
-
-→ More at **[kyanitelabs.tech](https://kyanitelabs.tech)**
-
-<!-- s-plus-geo:start -->
-
-## What is OpenGlaze?
-
-**OpenGlaze** is a free, open-source, self-hosted **ceramic glaze calculator and recipe manager**: UMF analysis, CTE estimation, a computational recipe optimizer, and an optional AI glaze assistant (Kama).
-
-| | |
-| --- | --- |
-| **Product** | OpenGlaze |
-| **Category** | open-source ceramic glaze calculator and recipe manager |
-| **Best for** | potters, ceramic artists, studios, and glaze-chemistry educators |
-| **Not** | a hosted recipe-sharing community or a replacement for real test tiles |
-| **Source** | [GitHub](https://github.com/KyaniteLabs/openglaze) · [Forgejo](https://git.kyanitelabs.tech/KyaniteLabs/openglaze) (private, maintainers only) |
-| **Keywords** | ceramic glaze calculator, UMF calculator, CTE glaze calculator, self-hosted glaze software, Glazy companion |
-
-## Who it's for
-
-- Primary: potters, ceramic artists, studios, and glaze-chemistry educators
-- Use when you need to calculate UMF and CTE, manage glaze recipes, and get computational recipe adjustments on your own infrastructure
-- Skip if you need a hosted recipe-sharing community or a replacement for real test tiles
-
-## FAQ
-
-### What is OpenGlaze?
-
-**OpenGlaze** is a free, open-source, self-hosted **ceramic glaze calculator and recipe manager**: UMF analysis, CTE estimation, a computational recipe optimizer, and an optional AI glaze assistant (Kama).
-
-### Who should use OpenGlaze?
-
-Potters, ceramic artists, studios, and glaze-chemistry educators.
-
-### How is OpenGlaze different?
-
-Unlike recipe databases, OpenGlaze runs the glaze chemistry (UMF, CTE, optimizer) on your own server; it complements Glazy, DigitalFire, and INSIGHT rather than replacing them.
-
-### Is OpenGlaze production software?
-
-Treat the README status and release tags as source of truth for maturity. Validate against your own requirements before production use.
-
-## Status
-
-- Maintained as of 2026 on the default branch
-- Prefer release tags when pinning dependencies
-- Report issues on [GitHub](https://github.com/KyaniteLabs/openglaze/issues)
-
-## Agent surface
-
-- Coding agents: read this README first, then repo docs/`AGENTS.md` if present
-- Prefer machine-readable briefs (`llms.txt`) when the repo ships one
-- MCP or skill entrypoints are documented in-repo when applicable
-
-## Contributing
-
-Issues and PRs welcome on [GitHub](https://github.com/KyaniteLabs/openglaze). Keep public docs free of secrets and machine-local paths.
-
-<!-- s-plus-geo:end -->
