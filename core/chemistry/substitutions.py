@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from .materials import get_material, MATERIALS
+from .materials import get_all_materials, get_material
 from .data_loader import load_material_substitutions
 
 logger = logging.getLogger(__name__)
@@ -156,7 +156,7 @@ class SubstitutionEngine:
         name_lower = name.lower()
 
         # Find materials with similar oxide profiles
-        for canonical, other in MATERIALS.items():
+        for canonical, other in get_all_materials().items():
             if canonical == name_lower:
                 continue
 

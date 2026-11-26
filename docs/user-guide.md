@@ -101,19 +101,23 @@ Import from common formats:
 - **Glazy CSV** — Planned (roadmap)
 - **Digitalfire INSIGHT** — Planned (roadmap)
 
+### Materials
+
+Open **Materials** in the sidebar to see every material the calculator knows: its analysis, its LOI, and where the numbers came from.
+
+- **Sources:** each library material is marked *Supplier data sheet* (with a link), *Theoretical* (a pure compound, calculated from its chemical formula), or *Unverified* (inherited from upstream OpenGlaze without a recorded source, to be replaced).
+- **Studio materials:** **Add studio material** for anything not in the library, such as a local clay or a frit from another supplier. Enter the analysis as weight percent as received, from the data sheet, plus LOI. The form shows the running total, which should come to about 100%. Studio materials appear in the recipe editor's suggestions right away.
+- **Lot analyses:** on any material, **Record a lot analysis** stores the analysis of a particular lot. While a lot is in use, every recipe that uses the material calculates with it; **Use the standard analysis** switches back. Older lots stay on record.
+
 ## The Chemistry Engine
 
 ### UMF Calculation
 
 The Unity Molecular Formula (UMF) normalizes glaze recipes to compare them on equal footing.
 
-**How to calculate:**
-1. Open a glaze detail view
-2. Click **Calculate UMF**
-3. The system analyzes your recipe and displays:
-   - Silica:Alumina ratio
-   - Predicted surface (glossy/matte/satin)
-   - Thermal expansion coefficient
+**How to calculate:** open the recipe in the **Recipe editor**. The UMF, silica:alumina ratio, predicted surface and estimated thermal expansion update as you type.
+
+Analyses are as received: a material's oxide percentages and its LOI together make up the raw material (whiting is 56% CaO and 44% LOI). The oxide percentages are used directly, so what burns off is never counted twice.
 
 **Interpreting UMF:**
 

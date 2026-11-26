@@ -21,6 +21,7 @@ let topAutocomplete = null;
 let studioPanel = null;
 let glazeTips = null;
 let recipeEditor = null;
+let materialsView = null;
 
 // Sanitize HTML to prevent XSS — uses DOMPurify if available
 function safeHTML(str) {
@@ -84,6 +85,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         recipeEditor = new RecipeEditor({ onSaved: refreshGlazes })
     } catch (e) {
         console.error('RecipeEditor error:', e)
+    }
+
+    try {
+        // Material changes reach the editor's suggestions on its next render
+        materialsView = new MaterialsView({ onChanged: () => { if (recipeEditor) recipeEditor.materials = null } })
+    } catch (e) {
+        console.error('MaterialsView error:', e)
     }
 
     // Load data from API
@@ -174,9 +182,10 @@ function switchView(view) {
     document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
         item.classList.toggle('active', item.dataset.view === view)
     })
-    // The recipe editor has no stage filter and its own empty states
-    document.getElementById('stage-bar').style.display = view === 'editor' ? 'none' : ''
-    if (view === 'editor') document.getElementById('empty-state').style.display = 'none'
+    // The recipe editor and materials have no stage filter and their own empty states
+    const ownLayout = view === 'editor' || view === 'materials'
+    document.getElementById('stage-bar').style.display = ownLayout ? 'none' : ''
+    if (ownLayout) document.getElementById('empty-state').style.display = 'none'
 
     // Handle different views
     if (view === 'canvas') {
@@ -198,6 +207,9 @@ function switchView(view) {
         if (glazeTips) glazeTips.show()
     } else if (view === 'editor') {
         renderRecipeEditorView()
+        if (glazeTips) glazeTips.hide()
+    } else if (view === 'materials') {
+        if (materialsView) materialsView.render(document.getElementById('canvas'))
         if (glazeTips) glazeTips.hide()
     }
 }

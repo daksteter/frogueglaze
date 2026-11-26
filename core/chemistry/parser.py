@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from .materials import get_material
+from .materials import get_material, resolve_material_key
 
 logger = logging.getLogger(__name__)
 
@@ -215,29 +215,15 @@ class RecipeParser:
 
     def _canonical_name(self, name: str) -> str:
         """Get the canonical lowercase name for a material."""
-        from .materials import MATERIALS, _ALIAS_TO_CANONICAL
-
-        # Try full name first
-        material = get_material(name)
-        if material:
-            normalized = name.strip().lower()
-            if normalized in MATERIALS:
-                return normalized
-            if normalized in _ALIAS_TO_CANONICAL:
-                return _ALIAS_TO_CANONICAL[normalized]
-
+        key = resolve_material_key(name)
+        if key:
+            return key
         # Try progressively shorter names (same logic as _lookup_material)
         words = name.strip().split()
         for i in range(len(words) - 1, 0, -1):
-            shorter = " ".join(words[:i])
-            material = get_material(shorter)
-            if material:
-                normalized = shorter.lower()
-                if normalized in MATERIALS:
-                    return normalized
-                if normalized in _ALIAS_TO_CANONICAL:
-                    return _ALIAS_TO_CANONICAL[normalized]
-
+            key = resolve_material_key(" ".join(words[:i]))
+            if key:
+                return key
         return name.strip().lower()
 
 

@@ -75,6 +75,40 @@ const API = {
         return this._send('/glazes', 'POST', data);
     },
 
+    // ---- Materials ----
+
+    getMaterialsLibrary() {
+        return this._send('/materials');
+    },
+
+    createStudioMaterial(data) {
+        return this._send('/materials', 'POST', data);
+    },
+
+    updateStudioMaterial(key, data) {
+        return this._send(`/materials/${encodeURIComponent(key)}`, 'PUT', data);
+    },
+
+    deleteStudioMaterial(key) {
+        return this._send(`/materials/${encodeURIComponent(key)}`, 'DELETE');
+    },
+
+    getMaterialLots(key) {
+        return this._send(`/materials/${encodeURIComponent(key)}/lots`);
+    },
+
+    addMaterialLot(key, data) {
+        return this._send(`/materials/${encodeURIComponent(key)}/lots`, 'POST', data);
+    },
+
+    setCurrentLot(key, lotId) {
+        return this._send(`/materials/${encodeURIComponent(key)}/current-lot`, 'PUT', { lot_id: lotId });
+    },
+
+    deleteMaterialLot(key, lotId) {
+        return this._send(`/materials/${encodeURIComponent(key)}/lots/${lotId}`, 'DELETE');
+    },
+
     // ---- Existing ----
 
     async getGlazes() {

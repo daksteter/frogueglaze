@@ -50,11 +50,22 @@ class TestUMF:
         result = calculate_umf("Custer Feldspar 45, Silica 25, Whiting 18, EPK 12")
         assert result.success is True
         assert result.umf_formula is not None
-        assert result.umf_formula["SiO2"] > 4.0
-        assert result.umf_formula["Al2O3"] > 0.3
+        # Hand-checked from the as-received analyses: SiO2 3.94, Al2O3 0.46
+        assert 3.8 < result.umf_formula["SiO2"] < 4.1
+        assert 0.44 < result.umf_formula["Al2O3"] < 0.48
         assert result.umf_formula["CaO"] > 0.4
         # Celadon should be glossy (high SiO2/Al2O3)
         assert result.surface_prediction == "glossy"
+
+    def test_loi_is_not_subtracted_twice(self):
+        """Whiting is CaO 56 + LOI 44: 100 g gives 56 g of CaO, not 56% of 56 g."""
+        from core.chemistry.materials import OXIDE_MOLECULAR_WEIGHTS, get_material
+        from core.chemistry.umf import UMFAnalyzer
+
+        cao_percent = get_material("whiting").oxides["CaO"]
+        assert 55.5 < cao_percent < 56.5
+        moles = UMFAnalyzer()._calculate_moles({"whiting": 100})
+        assert abs(moles["CaO"] - cao_percent / OXIDE_MOLECULAR_WEIGHTS["CaO"]) < 1e-6
 
     def test_umf_matte_glaze(self):
         # High alumina, lower silica = matte

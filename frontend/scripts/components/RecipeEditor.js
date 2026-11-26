@@ -15,8 +15,10 @@ const RE_OXIDE_GROUPS = [
 const RE_SUBSCRIPTS = '₀₁₂₃₄₅₆₇₈₉';
 const RE_DEBOUNCE_MS = 300;
 
-function reFormula(oxide) {
-    return String(oxide).replace(/\d/g, d => RE_SUBSCRIPTS[d]);
+/** Subscript atom counts (digits after an element or ")"), not coefficients like ·10H2O. */
+function reFormula(formula) {
+    return String(formula).replace(/([A-Za-z)])(\d+)/g, (_, before, digits) =>
+        before + digits.replace(/\d/g, d => RE_SUBSCRIPTS[d]));
 }
 
 function reNumber(value, digits = 2) {

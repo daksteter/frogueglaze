@@ -26,6 +26,7 @@ studio, so features are judged by whether that studio needs them.
 3. A larger materials library from supplier data sheets, with the source of
    each analysis recorded; custom materials and lot analyses including LOI.
    DigitalFire's reference library is copyrighted: never copy from it.
+   (Built 2026-11-25; unverified library entries still need supplier sheets.)
 4. An Insight-Live export importer that reports unmatched material names.
 5. Validate UMF output against Insight-Live using real studio recipes.
 6. Printable batch sheets, firing schedules, test-tile records with photos.
@@ -68,7 +69,20 @@ what is implemented from what is planned.
 - Chemistry engine: `core/chemistry/` (`umf.py`, `optimizer.py`,
   `compatibility.py`, `materials.py`, `data_loader.py`). It is the solid part;
   most fork work is UI, data and parsing around it.
-- Reference data: `ceramics-foundation/data/` (`materials.json` has 36 materials).
+- Material library: `ceramics-foundation/data/materials.json`, the engine's only
+  copy. Every entry records `source.type`: `supplier` (url, document, date; never
+  digitalfire.com or glazy.org), `theoretical` (formula + yields, computed by
+  `core/chemistry/formulas.py`), or `unverified`. `tests/test_materials_data.py`
+  checks sources, formula math, totals and alias clashes. Analyses are as
+  received: oxide % + LOI = 100, and UMF uses the oxide % directly (never
+  subtract LOI again).
+- Studio materials and lot analyses: `core/studio_materials.py` (tables
+  `custom_materials`, `material_lots`, `studio_state`), routes in
+  `webapp/routes/materials.py`, UI in `frontend/scripts/components/MaterialsView.js`.
+  `sync_engine()` runs before each request and layers them onto the library via
+  `set_studio_materials()`; the CLI and MCP use the library only. Look materials
+  up with `get_material()` / `resolve_material_key()`, never by holding a
+  reference to the tables.
 - HTTP app: `server.py` plus `webapp/routes/`; glaze CRUD is `webapp/routes/glazes.py`.
 - Served frontend: `frontend/index.html` and `frontend/scripts/`. The older
   `static/dashboard.html` (with a "New Glaze" form) is not served.

@@ -313,8 +313,10 @@ class UMFAnalyzer:
     def _calculate_moles(self, materials: Dict[str, float]) -> Dict[str, float]:
         """Convert materials to oxide molar amounts.
 
-        For each material: apply LOI, compute oxide mass contribution,
-        divide by molecular weight to get moles.
+        Analyses are on the as-received basis: the oxide percentages and the
+        LOI together make up the raw material (whiting is CaO 56 + LOI 44).
+        The oxide percentages therefore already exclude what burns off, so
+        LOI must not be subtracted again.
         """
         moles: Dict[str, float] = {}
 
@@ -324,15 +326,12 @@ class UMFAnalyzer:
                 logger.warning(f"Material not found during mole calc: {material_name}")
                 continue
 
-            # Effective amount after LOI
-            effective_amount = amount * (1.0 - material.loi / 100.0)
-
             for oxide, percentage in material.oxides.items():
                 if oxide not in OXIDE_MOLECULAR_WEIGHTS:
                     logger.debug(f"No molecular weight for oxide: {oxide}")
                     continue
 
-                oxide_mass = effective_amount * (percentage / 100.0)
+                oxide_mass = amount * (percentage / 100.0)
                 oxide_moles = oxide_mass / OXIDE_MOLECULAR_WEIGHTS[oxide]
 
                 moles[oxide] = moles.get(oxide, 0.0) + oxide_moles

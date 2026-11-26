@@ -47,6 +47,8 @@ It is not a contribution branch: changes here are not sent upstream, though self
 - A **recipe editor** with live chemistry: UMF, SiO₂:Al₂O₃, estimated CTE, surface prediction and cone limit checks update as you type. Every save is kept as a version with a note, and any version or other glaze can be compared side by side. See the [user guide](docs/user-guide.md#the-recipe-editor).
 - **Additions** in recipes: a leading `+` marks a colorant or opacifier listed after the base, for example `Custer Feldspar 45, Silica 25, Whiting 18, EPK 12, +Red Iron Oxide 2`.
 - API endpoints for the editor: `POST /api/chemistry/umf`, `GET /api/chemistry/materials`, and `GET`/`POST /api/glazes/<id>/versions` ([API reference](docs/API.md)).
+- A **Materials** view: every material's analysis, LOI and source. Each library analysis is marked as a supplier data sheet (linked), theoretical (calculated from the chemical formula), or unverified. The studio can add its own materials and record lot analyses; a lot in use replaces the standard analysis in every calculation. See the [user guide](docs/user-guide.md#materials).
+- More library materials, including barium, magnesium, manganese and potassium carbonates, alumina, nickel oxide and yellow iron oxide.
 
 **Removed**
 
@@ -57,12 +59,14 @@ It is not a contribution branch: changes here are not sent upstream, though self
 
 **Changed and fixed**
 
+- **UMF calculation:** upstream subtracted LOI twice: from the batch amount and again through the oxide percentages, which already exclude it. Whiting, clays and carbonates were undercounted. For Custer 45, Silica 25, Whiting 18, EPK 12, upstream reports Al₂O₃ 0.63 and SiO₂ 5.60; the correct values are 0.46 and 3.94.
+- The material library is one file, `ceramics-foundation/data/materials.json`, with a recorded source for every analysis. Upstream kept a separate hard-coded copy in the engine.
 - Docker Compose runs one app container, with the database and uploaded photos on named volumes (`openglaze_data`, `openglaze_uploads`).
 - Windows: data files are read as UTF-8, and each request's database connection is closed, so the app and its tests no longer trip over cp1252 decoding or locked files.
 
 ### Plans
 
-1. **Materials:** a larger library from supplier data sheets, recording the source of each analysis, plus custom materials and lot analyses with LOI. DigitalFire's reference library is copyrighted and is not used.
+1. **Materials:** replace the remaining unverified analyses with supplier data sheets. DigitalFire's reference library is copyrighted and is not used.
 2. **Insight-Live importer:** read an Insight-Live export, map its material names, and report anything that didn't match.
 3. **Validation:** run real studio recipes through both tools and compare the UMF numbers.
 4. **Studio extras:** printable batch sheets, firing schedules, and test-tile records with photos, plus a deployment with backups.

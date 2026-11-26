@@ -151,6 +151,45 @@ Content-Type: application/json
 }
 ```
 
+## Materials
+
+```http
+GET /api/materials
+POST /api/materials
+PUT /api/materials/<key>
+DELETE /api/materials/<key>
+GET /api/materials/<key>/lots
+POST /api/materials/<key>/lots
+PUT /api/materials/<key>/current-lot
+DELETE /api/materials/<key>/lots/<lot_id>
+```
+
+`<key>` is the material's lowercase name (`custer feldspar`), URL-encoded.
+
+`GET /api/materials` lists the published library and the studio's own materials. Each entry has `key`, `name`, `aliases`, `category`, `oxides`, `loi`, `source`, `studio` (true for the studio's own), `current_lot` (or null) and `lot_count`. `source.type` is `supplier` (with `supplier`, `document`, `url`, `date`), `theoretical` (with `formula`), `unverified`, or `custom` (with `text`).
+
+Analyses are weight percent **as received**: the oxides plus LOI make up the raw material.
+
+`POST /api/materials` adds a studio material:
+
+```json
+{
+  "name": "Creek Clay",
+  "aliases": "creek, local red",
+  "category": "clay",
+  "oxides": {"SiO2": 58.0, "Al2O3": 20.0, "Fe2O3": 6.0, "K2O": 2.5, "CaO": 1.0},
+  "loi": 11.5,
+  "source": "Lab test, 2026",
+  "notes": ""
+}
+```
+
+Names and aliases must not clash with existing materials. Oxides must be ones the engine knows, and oxides plus LOI must come to 80-110%; a response's `warnings` notes totals outside 98-102%. `PUT` edits a studio material (not its name); library materials are read-only.
+
+`POST /api/materials/<key>/lots` records a lot analysis (`lot`, `oxides`, `loi`, `source`, `current`, default true). While a lot is current, every calculation uses it instead of the material's standard analysis. `PUT .../current-lot` takes `{"lot_id": <id>}` to use a lot or `{"lot_id": null}` to go back to the standard analysis.
+
+The CLI and MCP server calculate with the published library only.
+
 ## Experiments
 
 ```http

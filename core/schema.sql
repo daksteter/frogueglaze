@@ -156,6 +156,41 @@ CREATE TABLE IF NOT EXISTS recipe_versions (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Studio materials: the studio's own materials, added to the published library
+CREATE TABLE IF NOT EXISTS custom_materials (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    material_key TEXT NOT NULL UNIQUE,   -- lowercase name, as used in recipes
+    name TEXT NOT NULL,
+    aliases TEXT,                        -- JSON list of other names
+    category TEXT DEFAULT 'other',
+    oxides TEXT NOT NULL,                -- JSON {oxide: weight percent, as received}
+    loi REAL DEFAULT 0,
+    source TEXT,                         -- supplier, data sheet, or how it was measured
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Lot analyses: a dated analysis of one material; at most one is current per
+-- material, and a current lot replaces the standard analysis in calculations
+CREATE TABLE IF NOT EXISTS material_lots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    material_key TEXT NOT NULL,
+    lot TEXT NOT NULL,
+    oxides TEXT NOT NULL,
+    loi REAL DEFAULT 0,
+    source TEXT,
+    is_current INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Small counters, e.g. materials_rev: bumped whenever studio materials or lots
+-- change, so every server process knows to reload them
+CREATE TABLE IF NOT EXISTS studio_state (
+    key TEXT PRIMARY KEY,
+    value INTEGER NOT NULL DEFAULT 0
+);
+
 -- ==========================================================================
 -- INDEXES
 -- ==========================================================================
@@ -175,3 +210,4 @@ CREATE INDEX IF NOT EXISTS idx_studio_members_user ON studio_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_studio ON lab_assignments(studio_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_combo ON lab_assignments(combination_id);
 CREATE INDEX IF NOT EXISTS idx_recipe_versions_glaze ON recipe_versions(glaze_id, id);
+CREATE INDEX IF NOT EXISTS idx_material_lots_key ON material_lots(material_key, id);

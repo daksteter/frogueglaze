@@ -14,6 +14,7 @@ from core.combinations import CombinationManager
 from core.experiments import ExperimentManager
 from core.ai.context import ContextRetriever
 from core.security import init_security
+from core.studio_materials import sync_engine
 from webapp.db import get_db_connection, init_db
 from webapp.helpers import get_current_user_id
 from webapp.routes import ALL_BLUEPRINTS
@@ -92,6 +93,8 @@ def _make_request_setup(db_path: str):
 
     def setup_managers():
         """Set up managers for each request."""
+        # Studio materials and current lots feed every calculation
+        sync_engine(db_path)
         # Personal mode: glazes, combinations and experiments are not per-user
         g.glaze_manager = GlazeManager(db_path)
         g.combo_manager = CombinationManager(db_path)

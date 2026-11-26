@@ -2,6 +2,7 @@
 
 import os
 from core.db import connect_db
+from core.studio_materials import reset_engine
 import tempfile
 from pathlib import Path
 import pytest
@@ -68,3 +69,10 @@ INSERT INTO combinations (base, top, type, source, result, risk, effect) VALUES
     ('Tenmoku', 'Chun Blue', 'research-backed', 'fired',
      'Deep blue-green over iron-black, subtle halo effect', 'low', 'subtle');
 """
+
+
+@pytest.fixture(autouse=True)
+def _published_materials_only():
+    """Studio materials loaded by one test's app must not leak into the next."""
+    yield
+    reset_engine()

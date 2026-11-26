@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from .data_loader import load_oxide_data, load_thermal_expansion
+from .data_loader import load_material_data, load_oxide_data, load_thermal_expansion
 
 
 @dataclass
@@ -15,6 +15,9 @@ class Material:
     oxides: Dict[str, float] = field(default_factory=dict)  # oxide_name -> percentage
     loi: float = 0.0  # loss on ignition percentage
     category: str = "other"
+    # Where the analysis came from: {"type": "supplier" | "theoretical" |
+    # "unverified" | "custom" | "lot", ...}; see materials.json
+    source: Dict = field(default_factory=dict)
 
 
 # Hardcoded fallback molecular weights (g/mol) — used when ceramics-foundation data unavailable
@@ -40,6 +43,7 @@ _HARDCODED_OXIDE_MW: Dict[str, float] = {
     "ZrO2": 123.218,
     "Cr2O3": 151.990,
     "P2O5": 141.944,
+    "NiO": 74.692,
 }
 
 # Load from ceramics-foundation if available, otherwise use hardcoded values
@@ -93,386 +97,108 @@ if _te_data:
 else:
     THERMAL_EXPANSION_COEFFICIENTS = dict(_HARDCODED_TE)
 
-# Master material database
-MATERIALS: Dict[str, Material] = {}
+# ---------------------------------------------------------------------------
+# Material library
+#
+# The library comes from ceramics-foundation/data/materials.json, where every
+# analysis records its source. A studio can add its own materials and mark a
+# lot analysis as current; the web app passes those in with
+# set_studio_materials(), and every lookup below sees them. Lookups read one
+# immutable table snapshot per call, so swapping it is safe while requests run.
+# ---------------------------------------------------------------------------
 
-# --- Feldspars ---
-MATERIALS["custer feldspar"] = Material(
-    name="Custer Feldspar",
-    aliases=[
-        "custer",
-        "k-spar",
-        "kspar",
-        "potassium feldspar",
-        "potash feldspar",
-        "feldspar",
-    ],
-    # Updated to current Pacer Minerals data (Digitalfire/Glazy 2024)
-    oxides={
-        "K2O": 10.0,
-        "Na2O": 3.8,
-        "Al2O3": 17.1,
-        "SiO2": 68.0,
-        "Fe2O3": 0.1,
-        "CaO": 0.3,
-    },
-    loi=0.25,
-    category="feldspar",
-)
 
-MATERIALS["nepheline syenite"] = Material(
-    name="Nepheline Syenite",
-    aliases=["neph syen", "nepheline"],
-    oxides={"Na2O": 11.8, "K2O": 5.3, "Al2O3": 23.5, "SiO2": 58.1},
-    loi=0.5,
-    category="feldspar",
-)
+def _load_library() -> Dict[str, Material]:
+    data = load_material_data()
+    if not data:
+        raise RuntimeError(
+            "Material library not found: expected ceramics-foundation/data/materials.json"
+        )
+    return {
+        key: Material(
+            name=entry["name"],
+            aliases=list(entry.get("aliases", [])),
+            oxides=dict(entry.get("oxides", {})),
+            loi=float(entry.get("loi", 0.0)),
+            category=entry.get("category", "other"),
+            source=dict(entry.get("source", {})),
+        )
+        for key, entry in data.items()
+    }
 
-MATERIALS["g-200 feldspar"] = Material(
-    name="G-200 Feldspar",
-    aliases=["g200", "kona f-4", "kona f4", "kona feldspar"],
-    oxides={"K2O": 9.1, "Na2O": 3.4, "Al2O3": 18.4, "SiO2": 68.5, "Fe2O3": 0.1},
-    loi=0.2,
-    category="feldspar",
-)
 
-MATERIALS["f-4 feldspar"] = Material(
-    name="F-4 Feldspar",
-    aliases=["f4", "minnesota feldspar", "soda feldspar"],
-    oxides={"K2O": 8.0, "Na2O": 6.0, "Al2O3": 17.5, "SiO2": 68.0},
-    loi=0.2,
-    category="feldspar",
-)
+# The published library, keyed by canonical (lowercase) name. Never modified.
+LIBRARY: Dict[str, Material] = _load_library()
 
-# --- Silica ---
-MATERIALS["silica"] = Material(
-    name="Silica",
-    aliases=["flint", "quartz", "sio2", "silica sand"],
-    oxides={"SiO2": 99.5},
-    loi=0.1,
-    category="silica",
-)
 
-# --- Fluxes ---
-MATERIALS["whiting"] = Material(
-    name="Whiting",
-    aliases=["calcium carbonate", "caco3", "chalk", "limestone"],
-    oxides={"CaO": 56.0},
-    loi=44.0,
-    category="flux",
-)
+class _Tables:
+    """An immutable snapshot of the effective materials and their aliases."""
 
-MATERIALS["dolomite"] = Material(
-    name="Dolomite",
-    aliases=["dolomite carb"],
-    oxides={"CaO": 30.5, "MgO": 21.9},
-    loi=47.6,
-    category="flux",
-)
+    def __init__(self, materials: Dict[str, Material]):
+        self.materials = materials
+        self.aliases: Dict[str, str] = {}
+        for canonical, material in materials.items():
+            for alias in material.aliases:
+                self.aliases.setdefault(alias.lower(), canonical)
 
-MATERIALS["talc"] = Material(
-    name="Talc",
-    aliases=["magnesium silicate"],
-    oxides={"MgO": 31.7, "SiO2": 63.5},
-    loi=4.8,
-    category="flux",
-)
 
-MATERIALS["zinc oxide"] = Material(
-    name="Zinc Oxide",
-    aliases=["zinc", "zno"],
-    oxides={"ZnO": 99.0},
-    loi=0.0,
-    category="flux",
-)
+_tables = _Tables(dict(LIBRARY))
 
-MATERIALS["strontium carbonate"] = Material(
-    name="Strontium Carbonate",
-    aliases=["strontium carb", "sro3"],
-    oxides={"SrO": 70.0},
-    loi=30.0,
-    category="flux",
-)
 
-MATERIALS["lithium carbonate"] = Material(
-    name="Lithium Carbonate",
-    aliases=["lithium carb", "li2co3"],
-    oxides={"Li2O": 40.4},
-    loi=59.6,
-    category="flux",
-)
+def set_studio_materials(
+    custom: Optional[List[Material]] = None,
+    active_lots: Optional[Dict[str, Material]] = None,
+) -> None:
+    """Replace the studio's own materials and current lot analyses.
 
-MATERIALS["soda ash"] = Material(
-    name="Soda Ash",
-    aliases=["sodium carbonate", "na2co3"],
-    oxides={"Na2O": 58.5},
-    loi=41.5,
-    category="flux",
-)
-
-MATERIALS["borax"] = Material(
-    name="Borax",
-    aliases=["sodium borate"],
-    oxides={"Na2O": 16.3, "B2O3": 36.5},
-    loi=47.2,
-    category="flux",
-)
-
-MATERIALS["wollastonite"] = Material(
-    name="Wollastonite",
-    aliases=["casio3"],
-    oxides={"CaO": 48.3, "SiO2": 51.7},
-    loi=0.0,
-    category="flux",
-)
-
-MATERIALS["bone ash"] = Material(
-    name="Bone Ash",
-    aliases=["calcium phosphate", "tribasic calcium phosphate"],
-    oxides={"CaO": 52.0, "P2O5": 42.0},
-    loi=2.0,
-    category="flux",
-)
-
-# --- Clays ---
-MATERIALS["epk"] = Material(
-    name="EPK",
-    aliases=["edgar plastic kaolin", "kaolin", "china clay", "generic kaolin"],
-    oxides={"Al2O3": 37.0, "SiO2": 46.5, "K2O": 0.5, "Fe2O3": 0.8},
-    loi=13.5,
-    category="clay",
-)
-
-MATERIALS["ball clay"] = Material(
-    name="Ball Clay",
-    aliases=["om4 ball clay", "om4", "kentucky ball clay", "tennessee ball clay"],
-    oxides={"Al2O3": 30.0, "SiO2": 55.0, "K2O": 1.5, "Fe2O3": 1.2},
-    loi=10.0,
-    category="clay",
-)
-
-MATERIALS["redart"] = Material(
-    name="Redart",
-    aliases=["cedar heights redart", "red art", "red art clay"],
-    oxides={"SiO2": 55.0, "Al2O3": 17.0, "Fe2O3": 7.0, "K2O": 3.5, "TiO2": 1.5},
-    loi=8.0,
-    category="clay",
-)
-
-MATERIALS["barnard clay"] = Material(
-    name="Barnard Clay",
-    aliases=["blackbird clay", "barnard"],
-    oxides={"SiO2": 52.0, "Al2O3": 14.0, "Fe2O3": 8.0, "K2O": 2.5, "TiO2": 1.5},
-    loi=10.0,
-    category="clay",
-)
-
-MATERIALS["bentonite"] = Material(
-    name="Bentonite",
-    aliases=["bentonite clay"],
-    oxides={"Al2O3": 18.0, "SiO2": 60.0, "MgO": 3.0, "Fe2O3": 3.0},
-    loi=10.0,
-    category="clay",
-)
-
-# --- Colorants ---
-MATERIALS["red iron oxide"] = Material(
-    name="Red Iron Oxide",
-    aliases=["iron oxide", "iron oxide red", "fe2o3", "red iron", "iron"],
-    oxides={"Fe2O3": 95.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["black iron oxide"] = Material(
-    name="Black Iron Oxide",
-    aliases=["iron oxide black"],
-    # Fe3O4 (magnetite) decomposes to FeO + Fe2O3 during firing
-    oxides={"FeO": 31.0, "Fe2O3": 69.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["cobalt carbonate"] = Material(
-    name="Cobalt Carbonate",
-    aliases=["cobalt carb", "co3"],
-    oxides={"CoO": 63.0},
-    loi=37.0,
-    category="colorant",
-)
-
-MATERIALS["cobalt oxide"] = Material(
-    name="Cobalt Oxide",
-    aliases=["cobalt", "cobalt ox"],
-    oxides={"CoO": 93.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["copper carbonate"] = Material(
-    name="Copper Carbonate",
-    aliases=["copper carb", "cuco3"],
-    oxides={"CuO": 65.0},
-    loi=35.0,
-    category="colorant",
-)
-
-MATERIALS["copper oxide"] = Material(
-    name="Copper Oxide",
-    aliases=["copper oxide black", "cuo", "copper"],
-    oxides={"CuO": 99.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["manganese dioxide"] = Material(
-    name="Manganese Dioxide",
-    aliases=["manganese", "mno2", "black manganese"],
-    # MnO2 decomposes to MnO during firing; this is the fired oxide contribution
-    oxides={"MnO": 100.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["chromium oxide"] = Material(
-    name="Chromium Oxide",
-    aliases=["chrome oxide", "chrome", "cr2o3"],
-    oxides={"Cr2O3": 99.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["rutile"] = Material(
-    name="Rutile",
-    aliases=["titanium dioxide", "tio2", "titanium"],
-    oxides={"TiO2": 85.0, "Fe2O3": 10.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["titanium dioxide"] = Material(
-    name="Titanium Dioxide",
-    aliases=["tio2 pure", "titania"],
-    oxides={"TiO2": 99.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["tin oxide"] = Material(
-    name="Tin Oxide",
-    aliases=["tin", "sno2"],
-    oxides={"SnO2": 98.0},
-    loi=0.0,
-    category="colorant",
-)
-
-MATERIALS["zirconium silicate"] = Material(
-    name="Zirconium Silicate",
-    aliases=["zircopax", "zircon", "zircosil"],
-    oxides={"ZrO2": 67.0, "SiO2": 33.0},
-    loi=0.0,
-    category="colorant",
-)
-
-# --- Frits ---
-MATERIALS["ferro frit 3124"] = Material(
-    name="Ferro Frit 3124",
-    aliases=["frit 3124", "frit3124"],
-    oxides={
-        "Na2O": 12.0,
-        "K2O": 5.0,
-        "CaO": 10.0,
-        "B2O3": 15.0,
-        "Al2O3": 10.0,
-        "SiO2": 48.0,
-    },
-    loi=0.0,
-    category="frit",
-)
-
-MATERIALS["ferro frit 3134"] = Material(
-    name="Ferro Frit 3134",
-    aliases=["frit 3134", "frit3134"],
-    oxides={
-        "Na2O": 4.7,
-        "K2O": 1.8,
-        "CaO": 16.5,
-        "Al2O3": 9.3,
-        "B2O3": 9.1,
-        "SiO2": 47.2,
-        "MgO": 3.7,
-    },
-    loi=0.0,
-    category="frit",
-)
-
-MATERIALS["alkalifritte m1233"] = Material(
-    name="Alkalifritte M1233",
-    aliases=["m1233"],
-    oxides={
-        "Na2O": 8.0,
-        "K2O": 5.0,
-        "CaO": 12.0,
-        "Al2O3": 10.0,
-        "B2O3": 8.0,
-        "SiO2": 55.0,
-        "ZnO": 2.0,
-    },
-    loi=0.0,
-    category="frit",
-)
-
-# --- Other ---
-MATERIALS["gerstley borate"] = Material(
-    name="Gerstley Borate",
-    aliases=["gb", "gerstley"],
-    oxides={"B2O3": 20.0, "CaO": 25.0, "MgO": 3.0, "SiO2": 25.0},
-    loi=27.0,
-    category="other",
-)
-
-# Build reverse lookup: alias -> canonical name
-_ALIAS_TO_CANONICAL: Dict[str, str] = {}
-for canonical, material in MATERIALS.items():
-    for alias in material.aliases:
-        _ALIAS_TO_CANONICAL[alias.lower()] = canonical
+    ``custom`` materials are added to the library (their names must not clash
+    with it). ``active_lots`` maps a canonical material name to the analysis
+    that should be used for it instead of the standard one.
+    """
+    global _tables
+    effective = dict(LIBRARY)
+    for material in custom or []:
+        effective[normalize_material_name(material.name)] = material
+    for key, lot in (active_lots or {}).items():
+        if key in effective:
+            effective[key] = lot
+    _tables = _Tables(effective)
 
 
 def normalize_material_name(name: str) -> str:
     """Normalize a material name to its canonical form."""
     if not name:
         return name
-    normalized = name.strip().lower()
-    return normalized
+    return name.strip().lower()
+
+
+def resolve_material_key(name: str) -> Optional[str]:
+    """Return the canonical key for a material name or alias, or None."""
+    if not name:
+        return None
+    tables = _tables
+    normalized = normalize_material_name(name)
+    if normalized in tables.materials:
+        return normalized
+    if normalized in tables.aliases:
+        return tables.aliases[normalized]
+    # Fuzzy: try removing common suffixes
+    for suffix in [" oxide", " carbonate", " clay", " feldspar", " carb"]:
+        stripped = normalized.replace(suffix, "")
+        if stripped in tables.materials:
+            return stripped
+        if stripped in tables.aliases:
+            return tables.aliases[stripped]
+    return None
 
 
 def get_material(name: str) -> Optional[Material]:
     """Look up a material by name or alias. Returns None if not found."""
-    if not name:
-        return None
-
-    normalized = normalize_material_name(name)
-
-    # Direct match on canonical name
-    if normalized in MATERIALS:
-        return MATERIALS[normalized]
-
-    # Match on alias
-    if normalized in _ALIAS_TO_CANONICAL:
-        canonical = _ALIAS_TO_CANONICAL[normalized]
-        return MATERIALS[canonical]
-
-    # Fuzzy: try removing common suffixes/prefixes
-    for suffix in [" oxide", " carbonate", " clay", " feldspar", " carb"]:
-        stripped = normalized.replace(suffix, "")
-        if stripped in MATERIALS:
-            return MATERIALS[stripped]
-        if stripped in _ALIAS_TO_CANONICAL:
-            return MATERIALS[_ALIAS_TO_CANONICAL[stripped]]
-
-    return None
+    tables = _tables
+    key = resolve_material_key(name)
+    return tables.materials.get(key) if key else None
 
 
 def get_all_materials() -> Dict[str, Material]:
-    """Return all materials keyed by canonical name."""
-    return dict(MATERIALS)
+    """Return all effective materials keyed by canonical name."""
+    return dict(_tables.materials)
