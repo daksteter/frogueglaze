@@ -546,7 +546,8 @@ class TestDefectPrediction:
         """High-alkali glaze should flag crazing risk."""
         from core.chemistry.defects import predict_defects
 
-        result = predict_defects("Nepheline Syenite 60, Silica 20, EPK 20", cone=10)
+        # Nepheline-heavy, no calcium: estimated CTE about 7.9
+        result = predict_defects("Nepheline Syenite 70, Silica 15, EPK 15", cone=10)
         assert result.success is True
         assert result.overall_risk == "high"
         crazing = [d for d in result.defects if d.defect == "crazing"]

@@ -26,7 +26,9 @@ studio, so features are judged by whether that studio needs them.
 3. A larger materials library from supplier data sheets, with the source of
    each analysis recorded; custom materials and lot analyses including LOI.
    DigitalFire's reference library is copyrighted: never copy from it.
-   (Built 2026-11-25; unverified library entries still need supplier sheets.)
+   (Built 2026-11-25. Still unverified, needing supplier sheets: G-200,
+   F-4, generic Ball Clay, Barnard, Alkalifritte M1233, rutile. Spodumene is
+   theoretical only: no supplier sheet could be sourced.)
 4. An Insight-Live export importer that reports unmatched material names.
 5. Validate UMF output against Insight-Live using real studio recipes.
 6. Printable batch sheets, firing schedules, test-tile records with photos.

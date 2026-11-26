@@ -176,7 +176,7 @@ class TestRecipeOptimizer:
     def test_already_at_target_cte(self):
         """Recipe already at target CTE should return informative message."""
         result = self.optimizer.optimize(
-            self.base_recipe, "target_cte", target_value=7.23
+            self.base_recipe, "target_cte", target_value=7.08
         )
         assert result.success
         assert len(result.suggestions) == 0

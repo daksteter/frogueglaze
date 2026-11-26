@@ -44,6 +44,8 @@ _HARDCODED_OXIDE_MW: Dict[str, float] = {
     "Cr2O3": 151.990,
     "P2O5": 141.944,
     "NiO": 74.692,
+    "V2O5": 181.88,
+    "Nb2O5": 265.81,
 }
 
 # Load from ceramics-foundation if available, otherwise use hardcoded values

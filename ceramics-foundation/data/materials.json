@@ -1,5 +1,5 @@
 {
-  "version": "2.0",
+  "version": "2.1",
   "last_updated": "2026-11-25",
   "basis": "Weight percent, as received: the oxides plus LOI make up the raw material.",
   "source_types": {
@@ -8,6 +8,32 @@
     "unverified": "Inherited from upstream without a recorded source; to be replaced."
   },
   "materials": {
+    "alberta slip": {
+      "name": "Alberta Slip",
+      "aliases": [
+        "alberta"
+      ],
+      "category": "clay",
+      "oxides": {
+        "SiO2": 53.54,
+        "Al2O3": 15.2,
+        "CaO": 5.9,
+        "Fe2O3": 4.5,
+        "MgO": 3.9,
+        "K2O": 3.5,
+        "Na2O": 2.2,
+        "TiO2": 0.3,
+        "P2O5": 0.1
+      },
+      "loi": 9.2,
+      "source": {
+        "type": "supplier",
+        "supplier": "Plainsman Clays",
+        "document": "Alberta Slip product data page",
+        "url": "https://web.archive.org/web/20260224163956/https://plainsmanclays.com/data/index.php?product=12910",
+        "note": "Manufacturer's measured assay (adds to 98.3% as published). Read from the Internet Archive."
+      }
+    },
     "alkalifritte m1233": {
       "name": "Alkalifritte M1233",
       "aliases": [
@@ -114,19 +140,31 @@
     "bentonite": {
       "name": "Bentonite",
       "aliases": [
-        "bentonite clay"
+        "bentonite clay",
+        "volclay",
+        "volclay 325",
+        "sodium bentonite",
+        "wyoming bentonite"
       ],
       "category": "clay",
       "oxides": {
-        "Al2O3": 18.0,
-        "SiO2": 60.0,
-        "MgO": 3.0,
-        "Fe2O3": 3.0
+        "SiO2": 63.02,
+        "Al2O3": 21.08,
+        "Fe2O3": 3.25,
+        "FeO": 0.35,
+        "MgO": 2.67,
+        "Na2O": 2.57,
+        "CaO": 0.65
       },
-      "loi": 10.0,
+      "loi": 5.64,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "American Colloid Company (Minerals Technologies)",
+        "document": "Volclay 325 Mesh technical sheet",
+        "url": "https://web.archive.org/web/20240713190233/https://www.mineralstech.com/docs/default-source/performance-materials-documents/advanced-performance-additives/applications/volclay-325-mesh-tech-sheet.pdf",
+        "date": "2008-07-01",
+        "basis": "moisture free",
+        "note": "Typical analysis, moisture-free basis; 0.72% trace elements not included. Read from the Internet Archive."
       }
     },
     "black iron oxide": {
@@ -327,17 +365,21 @@
       ],
       "category": "feldspar",
       "oxides": {
+        "SiO2": 68.5,
+        "Al2O3": 17.0,
         "K2O": 10.0,
-        "Na2O": 3.8,
-        "Al2O3": 17.1,
-        "SiO2": 68.0,
-        "Fe2O3": 0.1,
-        "CaO": 0.3
+        "Na2O": 3.0,
+        "CaO": 0.3,
+        "Fe2O3": 0.15
       },
-      "loi": 0.25,
+      "loi": 0.3,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Pacer Corporation (now Pacer Minerals)",
+        "document": "Custer Feldspar technical data sheet, 200/325/500 mesh",
+        "url": "https://web.archive.org/web/20150603205518/http://pacerminerals.com/wp-content/uploads/2009/07/feldspar-200-325-500-tech-data.pdf",
+        "date": "2005-03-23",
+        "note": "Typical analysis; MgO listed only as trace. Read from the Internet Archive; the old pacerminerals.com domain no longer belongs to Pacer."
       }
     },
     "dolomite": {
@@ -371,15 +413,24 @@
       ],
       "category": "clay",
       "oxides": {
-        "Al2O3": 37.0,
-        "SiO2": 46.5,
-        "K2O": 0.5,
-        "Fe2O3": 0.8
+        "SiO2": 45.73,
+        "Al2O3": 37.36,
+        "Fe2O3": 0.79,
+        "TiO2": 0.37,
+        "CaO": 0.18,
+        "MgO": 0.098,
+        "Na2O": 0.059,
+        "K2O": 0.33,
+        "P2O5": 0.236
       },
-      "loi": 13.5,
+      "loi": 13.91,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Edgar Minerals",
+        "document": "EPK Clay product data page (typical analysis)",
+        "url": "https://web.archive.org/web/20180927035528/http://www.edgarminerals.com/EPK-Clay.html",
+        "date": "2018",
+        "note": "Typical analysis. Read from the Internet Archive."
       }
     },
     "f-4 feldspar": {
@@ -402,6 +453,32 @@
         "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
       }
     },
+    "ferro frit 3110": {
+      "name": "Ferro Frit 3110",
+      "aliases": [
+        "ferro 3110",
+        "frit 3110",
+        "3110"
+      ],
+      "category": "frit",
+      "oxides": {
+        "SiO2": 69.77,
+        "Na2O": 15.24,
+        "CaO": 6.29,
+        "Al2O3": 3.7,
+        "B2O3": 2.64,
+        "K2O": 2.36
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Ferro Corporation (now Vibrantz)",
+        "document": "USA Pottery Frits: Leadless Glaze Frits, Percentage Compositions (version 11/08)",
+        "url": "https://web.archive.org/web/20120619153559/http://www.ferro.com:80/NR/rdonlyres/AAC6D890-7E30-4E57-A61E-818DE097A898/0/potteryfrits2008.pdf",
+        "date": "2008-11",
+        "note": "Ferro states these are calculated compositions, not analyses. Frits have no LOI. Read from the Internet Archive copy of ferro.com (2012); Ferro is now Vibrantz."
+      }
+    },
     "ferro frit 3124": {
       "name": "Ferro Frit 3124",
       "aliases": [
@@ -412,17 +489,21 @@
       ],
       "category": "frit",
       "oxides": {
-        "Na2O": 12.0,
-        "K2O": 5.0,
-        "CaO": 10.0,
-        "B2O3": 15.0,
-        "Al2O3": 10.0,
-        "SiO2": 48.0
+        "SiO2": 54.94,
+        "CaO": 14.23,
+        "B2O3": 13.74,
+        "Al2O3": 10.01,
+        "Na2O": 6.4,
+        "K2O": 0.68
       },
       "loi": 0.0,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Ferro Corporation (now Vibrantz)",
+        "document": "USA Pottery Frits: Leadless Glaze Frits, Percentage Compositions (version 11/08)",
+        "url": "https://web.archive.org/web/20120619153559/http://www.ferro.com:80/NR/rdonlyres/AAC6D890-7E30-4E57-A61E-818DE097A898/0/potteryfrits2008.pdf",
+        "date": "2008-11",
+        "note": "Ferro states these are calculated compositions, not analyses. Frits have no LOI. Read from the Internet Archive copy of ferro.com (2012); Ferro is now Vibrantz."
       }
     },
     "ferro frit 3134": {
@@ -435,18 +516,145 @@
       ],
       "category": "frit",
       "oxides": {
-        "Na2O": 4.7,
-        "K2O": 1.8,
-        "CaO": 16.5,
-        "Al2O3": 9.3,
-        "B2O3": 9.1,
-        "SiO2": 47.2,
-        "MgO": 3.7
+        "SiO2": 45.56,
+        "B2O3": 22.79,
+        "CaO": 19.51,
+        "Na2O": 10.14,
+        "Al2O3": 2.0
       },
       "loi": 0.0,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Ferro Corporation (now Vibrantz)",
+        "document": "USA Pottery Frits: Leadless Glaze Frits, Percentage Compositions (version 11/08)",
+        "url": "https://web.archive.org/web/20120619153559/http://www.ferro.com:80/NR/rdonlyres/AAC6D890-7E30-4E57-A61E-818DE097A898/0/potteryfrits2008.pdf",
+        "date": "2008-11",
+        "note": "Ferro states these are calculated compositions, not analyses. Frits have no LOI. Read from the Internet Archive copy of ferro.com (2012); Ferro is now Vibrantz."
+      }
+    },
+    "ferro frit 3195": {
+      "name": "Ferro Frit 3195",
+      "aliases": [
+        "ferro 3195",
+        "frit 3195",
+        "3195"
+      ],
+      "category": "frit",
+      "oxides": {
+        "SiO2": 48.35,
+        "B2O3": 22.62,
+        "Al2O3": 11.98,
+        "CaO": 11.36,
+        "Na2O": 5.69
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Ferro Corporation (now Vibrantz)",
+        "document": "USA Pottery Frits: Leadless Glaze Frits, Percentage Compositions (version 11/08)",
+        "url": "https://web.archive.org/web/20120619153559/http://www.ferro.com:80/NR/rdonlyres/AAC6D890-7E30-4E57-A61E-818DE097A898/0/potteryfrits2008.pdf",
+        "date": "2008-11",
+        "note": "Ferro states these are calculated compositions, not analyses. Frits have no LOI. Read from the Internet Archive copy of ferro.com (2012); Ferro is now Vibrantz."
+      }
+    },
+    "fusion frit f-12": {
+      "name": "Fusion Frit F-12",
+      "aliases": [
+        "fusion f-12",
+        "fusion f12",
+        "f-12",
+        "f12"
+      ],
+      "category": "frit",
+      "oxides": {
+        "SiO2": 45.0,
+        "B2O3": 23.8,
+        "CaO": 20.0,
+        "Na2O": 10.4,
+        "Al2O3": 0.8
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Fusion Ceramics",
+        "document": "Technical Data for Frits (F 12)",
+        "url": "https://web.archive.org/web/20020407100244/http://www.fusionceramics.com:80/fritspec.htm",
+        "note": "Read from the Internet Archive copy of fusionceramics.com (2002; unchanged through 2004). Frits have no LOI."
+      }
+    },
+    "fusion frit f-19": {
+      "name": "Fusion Frit F-19",
+      "aliases": [
+        "fusion f-19",
+        "fusion f19",
+        "f-19",
+        "f19"
+      ],
+      "category": "frit",
+      "oxides": {
+        "SiO2": 54.5,
+        "B2O3": 14.6,
+        "CaO": 14.2,
+        "Al2O3": 9.7,
+        "Na2O": 7.0
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Fusion Ceramics",
+        "document": "Technical Data for Frits (F 19)",
+        "url": "https://web.archive.org/web/20020407100244/http://www.fusionceramics.com:80/fritspec.htm",
+        "note": "Read from the Internet Archive copy of fusionceramics.com (2002; unchanged through 2004). Frits have no LOI."
+      }
+    },
+    "fusion frit f-2": {
+      "name": "Fusion Frit F-2",
+      "aliases": [
+        "fusion f-2",
+        "fusion f2",
+        "f-2",
+        "f2"
+      ],
+      "category": "frit",
+      "oxides": {
+        "SiO2": 49.0,
+        "B2O3": 20.3,
+        "Al2O3": 13.5,
+        "CaO": 10.5,
+        "K2O": 3.7,
+        "Na2O": 3.0
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Fusion Ceramics",
+        "document": "Technical Data for Frits (F 2)",
+        "url": "https://web.archive.org/web/20020407100244/http://www.fusionceramics.com:80/fritspec.htm",
+        "note": "Read from the Internet Archive copy of fusionceramics.com (2002; unchanged through 2004). Frits have no LOI."
+      }
+    },
+    "fusion frit f-69": {
+      "name": "Fusion Frit F-69",
+      "aliases": [
+        "fusion f-69",
+        "fusion f69",
+        "f-69",
+        "f69"
+      ],
+      "category": "frit",
+      "oxides": {
+        "SiO2": 44.5,
+        "B2O3": 30.2,
+        "MgO": 12.8,
+        "Al2O3": 12.5
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Fusion Ceramics",
+        "document": "Technical Data for Frits (F 69)",
+        "url": "https://web.archive.org/web/20020407100244/http://www.fusionceramics.com:80/fritspec.htm",
+        "note": "Read from the Internet Archive copy of fusionceramics.com (2002; unchanged through 2004). Frits have no LOI."
       }
     },
     "g-200 feldspar": {
@@ -475,19 +683,91 @@
       "name": "Gerstley Borate",
       "aliases": [
         "gb",
-        "gerstley"
+        "gerstley",
+        "laguna gerstley borate"
       ],
       "category": "other",
       "oxides": {
-        "B2O3": 20.0,
-        "CaO": 25.0,
-        "MgO": 3.0,
-        "SiO2": 25.0
+        "B2O3": 26.8,
+        "CaO": 19.4,
+        "SiO2": 14.8,
+        "Na2O": 3.95,
+        "MgO": 3.54,
+        "Al2O3": 0.98,
+        "Fe2O3": 0.425,
+        "K2O": 0.399,
+        "P2O5": 0.053,
+        "TiO2": 0.05,
+        "MnO": 0.024
       },
-      "loi": 27.0,
+      "loi": 29.5,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Laguna Clay Co.",
+        "document": "Chemical Composition of Gerstley Borate (independent lab analysis)",
+        "url": "https://docs.wixstatic.com/ugd/e5330f_973fd0915bd845c4bdd6014d941a162b.pdf",
+        "date": "2011-07-05",
+        "note": "Analysis of Laguna's stockpile; iron reported as total Fe2O3; 0.079% trace minerals not included."
+      }
+    },
+    "hawthorn bond": {
+      "name": "Hawthorn Bond",
+      "aliases": [
+        "hawthorn",
+        "hawthorne bond",
+        "hawthorn bond fireclay",
+        "hawthorn fireclay"
+      ],
+      "category": "clay",
+      "oxides": {
+        "SiO2": 50.2,
+        "Al2O3": 31.2,
+        "TiO2": 1.95,
+        "Fe2O3": 1.5,
+        "K2O": 0.5,
+        "CaO": 0.25,
+        "MgO": 0.2,
+        "Na2O": 0.15,
+        "P2O5": 0.15
+      },
+      "loi": 13.03,
+      "source": {
+        "type": "supplier",
+        "supplier": "Christy Minerals",
+        "document": "Product Technical Data: Hawthorn Bond",
+        "url": "https://christyminerals.com/wp-content/uploads/2020/04/Hawthorn-Bond-Christy-Minerals.pdf",
+        "date": "2013-01",
+        "note": "The sheet gives ranges only; these are midpoints, counting 'trace' as 0."
+      }
+    },
+    "ilmenite": {
+      "name": "Ilmenite",
+      "aliases": [
+        "granular ilmenite"
+      ],
+      "category": "colorant",
+      "oxides": {
+        "TiO2": 58.5,
+        "Fe2O3": 34.0,
+        "Al2O3": 1.15,
+        "MgO": 1.15,
+        "SiO2": 1.0,
+        "V2O5": 0.35,
+        "MnO": 0.3,
+        "Cr2O3": 0.26,
+        "CaO": 0.135,
+        "ZrO2": 0.125,
+        "P2O5": 0.095,
+        "Nb2O5": 0.055
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "supplier",
+        "supplier": "Sierra Rutile Limited",
+        "document": "Ilmenite General Specification, issue 5",
+        "url": "https://www.sierra-rutile.com/wp-content/uploads/2026/05/03.-SRL-Ilmenite-Specifications-2026-.pdf",
+        "date": "2026-01",
+        "note": "Midpoints of the typical ranges; all iron reported as Fe2O3; no LOI given."
       }
     },
     "lithium carbonate": {
@@ -574,19 +854,30 @@
       "name": "Nepheline Syenite",
       "aliases": [
         "neph syen",
-        "nepheline"
+        "nepheline",
+        "a-270",
+        "a270",
+        "spectrum a-270",
+        "nepheline syenite 270"
       ],
       "category": "feldspar",
       "oxides": {
-        "Na2O": 11.8,
-        "K2O": 5.3,
-        "Al2O3": 23.5,
-        "SiO2": 58.1
+        "SiO2": 60.2,
+        "Al2O3": 23.6,
+        "Na2O": 10.4,
+        "K2O": 4.85,
+        "CaO": 0.39,
+        "Fe2O3": 0.08,
+        "MgO": 0.02
       },
       "loi": 0.5,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Covia (formerly Unimin), Nephton, Ontario",
+        "document": "SPECTRUM Ceramic Fluxes technical data sheet (A-200, A-270, A-400)",
+        "url": "https://web.archive.org/web/20240617174332/https://www.coviacorp.com/media/jxaojiel/spectrum_tds_a200-a400_nephton_060_0619_cer_eng.pdf",
+        "date": "2019-06",
+        "note": "Typical mean values; one chemistry for all three grades. Read from the Internet Archive (the live link now returns 404)."
       }
     },
     "nickel oxide": {
@@ -607,6 +898,35 @@
           "NiO": 1
         },
         "note": "Green nickel oxide."
+      }
+    },
+    "old hickory m-23": {
+      "name": "Old Hickory M-23",
+      "aliases": [
+        "m-23",
+        "m23",
+        "m-23 ball clay",
+        "old hickory m23"
+      ],
+      "category": "clay",
+      "oxides": {
+        "SiO2": 57.9,
+        "Al2O3": 27.2,
+        "TiO2": 2.4,
+        "Fe2O3": 1.2,
+        "K2O": 0.6,
+        "MgO": 0.5,
+        "Na2O": 0.4,
+        "CaO": 0.1
+      },
+      "loi": 9.7,
+      "source": {
+        "type": "supplier",
+        "supplier": "Old Hickory Clay Company",
+        "document": "Typical Data Sheet: Ball Clays and Kaolin Clays",
+        "url": "https://www.oldhickoryclay.com/s/OHC-Website-TDS.pdf",
+        "date": "2026-03",
+        "note": "Typical analysis; a Kentucky ball clay."
       }
     },
     "potassium carbonate": {
@@ -661,16 +981,23 @@
       ],
       "category": "clay",
       "oxides": {
-        "SiO2": 55.0,
-        "Al2O3": 17.0,
+        "SiO2": 64.2,
+        "Al2O3": 16.4,
         "Fe2O3": 7.0,
-        "K2O": 3.5,
-        "TiO2": 1.5
+        "K2O": 4.1,
+        "MgO": 1.6,
+        "TiO2": 1.1,
+        "Na2O": 0.4,
+        "CaO": 0.2
       },
-      "loi": 8.0,
+      "loi": 4.9,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "Resco Products, Cedar Heights Clay Division",
+        "document": "Product Data: Redart Clay (brand code 0278)",
+        "url": "https://www.rescoproducts.com/docs/default-source/data-sheets-us/pds/redart-clay.pdf",
+        "date": "2019-07-30",
+        "note": "Typical analysis. The sheet labels it calcined basis but also lists LOI; 0.1% 'other' is not included."
       }
     },
     "rutile": {
@@ -732,6 +1059,29 @@
         "note": "Anhydrous sodium carbonate."
       }
     },
+    "spodumene": {
+      "name": "Spodumene",
+      "aliases": [
+        "lithium spodumene"
+      ],
+      "category": "feldspar",
+      "oxides": {
+        "Li2O": 8.03,
+        "Al2O3": 27.4,
+        "SiO2": 64.58
+      },
+      "loi": 0.0,
+      "source": {
+        "type": "theoretical",
+        "formula": "LiAlSi2O6",
+        "yields": {
+          "Li2O": 0.5,
+          "Al2O3": 0.5,
+          "SiO2": 2
+        },
+        "note": "Ideal spodumene. Ceramic grades carry less Li2O (about 6-7.5%) plus some K2O and Na2O; no supplier data sheet could be sourced, so record a lot analysis for the spodumene you use."
+      }
+    },
     "strontium carbonate": {
       "name": "Strontium Carbonate",
       "aliases": [
@@ -754,17 +1104,27 @@
     "talc": {
       "name": "Talc",
       "aliases": [
-        "magnesium silicate"
+        "magnesium silicate",
+        "benwood talc",
+        "bt2213",
+        "fabi talc"
       ],
       "category": "flux",
       "oxides": {
-        "MgO": 31.7,
-        "SiO2": 63.5
+        "SiO2": 61.5,
+        "MgO": 31.4,
+        "Fe2O3": 0.6,
+        "CaO": 0.5,
+        "Al2O3": 0.5
       },
-      "loi": 4.8,
+      "loi": 5.0,
       "source": {
-        "type": "unverified",
-        "note": "Inherited from upstream OpenGlaze, whose materials file credits \"Digitalfire, Glazy, Pacer Minerals 2024\" as a whole; the source of this entry was not recorded. Replace with a supplier data sheet."
+        "type": "supplier",
+        "supplier": "IMI Fabi USA",
+        "document": "Benwood Talc 2213 technical data sheet",
+        "url": "https://web.archive.org/web/20240527191058/https://www.penpoly.com/app/uploads/2021/07/Benwood-Talc-2213_tds.pdf",
+        "date": "2001-04",
+        "note": "Typical analysis; LOI at 1050 C. The talc Laguna sells since Texas (Pioneer) talc was discontinued. Read from the Internet Archive copy of a distributor posting."
       }
     },
     "tin oxide": {
@@ -832,22 +1192,30 @@
     "wollastonite": {
       "name": "Wollastonite",
       "aliases": [
-        "casio3"
+        "casio3",
+        "nyad 325",
+        "nyad 400",
+        "nyad"
       ],
       "category": "flux",
       "oxides": {
-        "CaO": 48.28,
-        "SiO2": 51.72
+        "SiO2": 51.6,
+        "CaO": 46.15,
+        "Fe2O3": 0.77,
+        "MgO": 0.38,
+        "Al2O3": 0.34,
+        "MnO": 0.16,
+        "TiO2": 0.05,
+        "K2O": 0.05
       },
-      "loi": 0.0,
+      "loi": 0.5,
       "source": {
-        "type": "theoretical",
-        "formula": "CaSiO3",
-        "yields": {
-          "CaO": 1,
-          "SiO2": 1
-        },
-        "note": "Ideal calcium silicate; natural wollastonite carries some MgO and Fe2O3."
+        "type": "supplier",
+        "supplier": "NYCO Minerals (now Imerys)",
+        "document": "NYAD 325 technical data sheet (IN-082-05-1)",
+        "url": "https://web.archive.org/web/20110107182945/http://www.nycominerals.com/directories/PDFS/TDS%20DIRECTORY/NYAD/NYAD_325%20IN-082-05-1FAX.pdf",
+        "date": "2002",
+        "note": "Typical analysis; weight loss at 1000 C. NYAD 400 differs only slightly. Read from the Internet Archive."
       }
     },
     "yellow iron oxide": {
