@@ -81,6 +81,16 @@ Create/update payloads use the glaze fields accepted by `Glaze.from_dict`, inclu
 
 It returns `201` with the saved version (`id`, `glaze_id`, `recipe`, `note`, `cone`, `created_at`). The first save of a glaze that already had a recipe also stores that earlier recipe as a version with the note "Recipe before first edit". `GET` lists versions newest first. Both return `404` for an unknown glaze.
 
+### Batch sheets
+
+`POST /api/batch-sheet` scales a recipe for weighing out:
+
+```json
+{"recipe": "Custer Feldspar 45, Silica 25, Whiting 18, EPK 12, +Red Iron Oxide 2", "size": 1000, "basis": "base"}
+```
+
+`size` is in grams. With `basis` `base` (the default) the base materials weigh `size` and additions are scaled by the same factor on top; with `total` everything together weighs `size`. Materials keep their names as written, known to the library or not. The response has `rows` (`name`, `amount`, `addition`, `grams`, `running`, `known`, `lot`), base materials first, with weights rounded to 0.1 g and `running` adding the rounded weights; plus `base_grams`, `additions_grams`, `total_grams`, `base_percent` and `additions_percent`. `lot` is the studio's lot in use for that material, or null. Errors are 400 with a plain `message`.
+
 ## Combinations
 
 ```http

@@ -41,7 +41,9 @@ studio, so features are judged by whether that studio needs them.
    Insight-Live's, a model difference. Still needed: supplier analyses
    for Tile #6 Kaolin and OM#4. The report and her data are in the
    git-ignored `private/` folder.)
-6. Printable batch sheets, firing schedules, test-tile records with photos.
+6. Printable batch sheets, firing schedules, test-tile records with photos,
+   and a deployment on an always-on studio computer (Docker, studio
+   network only) with backups. (Batch sheets built 2026-11-26.)
 
 Removed from the fork on 2026-11-25; don't bring them back, including when
 merging `upstream/master` (resolve conflicts there by keeping them deleted):
@@ -108,6 +110,11 @@ what is implemented from what is planned.
   `recipe_versions`). Recipes stay plain strings in `glazes.recipe`; a leading
   `+` marks an addition. New frontend files must also go in the precache list
   in `frontend/sw.js`, or its install fails.
+- Batch sheets: `core/batch_sheet.py` (keeps names as written, base scaled to
+  the size with additions on top, running totals, lot in use), route
+  `POST /api/batch-sheet` in `webapp/routes/recipes.py`, UI
+  `frontend/scripts/components/BatchSheet.js` (a dialog; printing copies the
+  sheet into `#print-root` and print CSS hides everything else).
 - Insight-Live importer: `core/insight_live.py` reads the recipe CSV (one row
   per recipe, one column per material, no additions or cone marked) and
   matches names with `match_material_key()`, the calculator's own lookup.

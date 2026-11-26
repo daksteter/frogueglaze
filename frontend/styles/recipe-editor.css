@@ -364,6 +364,10 @@
     margin-top: var(--space-3);
 }
 
+.glaze-batch-sheet {
+    margin-left: var(--space-2);
+}
+
 .re-cte-note {
     margin: calc(-1 * var(--space-2)) 0 var(--space-4);
     font-size: var(--text-xs);

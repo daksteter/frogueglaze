@@ -109,6 +109,10 @@ const API = {
         return this._send(`/materials/${encodeURIComponent(key)}/lots/${lotId}`, 'DELETE');
     },
 
+    makeBatchSheet(data) {
+        return this._send('/batch-sheet', 'POST', data);
+    },
+
     // ---- Insight-Live import ----
 
     previewInsightLiveImport(csv) {

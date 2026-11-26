@@ -343,6 +343,16 @@ function renderGlazesView() {
                 editButton.textContent = glaze.recipe ? 'Edit recipe' : 'Add recipe'
                 editButton.addEventListener('click', () => openRecipeEditor(glaze.id))
                 card.appendChild(editButton)
+                if (glaze.recipe) {
+                    const sheetButton = document.createElement('button')
+                    sheetButton.type = 'button'
+                    sheetButton.className = 'btn btn-secondary glaze-edit-recipe glaze-batch-sheet'
+                    sheetButton.textContent = 'Batch sheet'
+                    sheetButton.addEventListener('click', () => openBatchSheet({
+                        name: glaze.name, recipe: glaze.recipe, cone: glaze.cone,
+                    }))
+                    card.appendChild(sheetButton)
+                }
                 grid.appendChild(card)
             })
 

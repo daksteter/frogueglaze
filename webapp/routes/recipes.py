@@ -1,7 +1,8 @@
-"""Recipe editor routes: saved recipe versions for a glaze."""
+"""Recipe editor routes: saved recipe versions and batch sheets."""
 
 from flask import Blueprint, current_app, g, jsonify, request
 
+from core.batch_sheet import BatchSheetError, batch_sheet
 from core.errors import error_payload
 from core.glazes.versions import list_versions, save_version
 from core.security import rate_limit
@@ -63,3 +64,31 @@ def save_recipe_version(glaze_id: str):
         cone=cone,
     )
     return jsonify(version), 201
+
+
+@bp.route("/api/batch-sheet", methods=["POST"])
+@rate_limit(requests_per_minute=120)
+def make_batch_sheet():
+    """Scale a recipe to a batch size for weighing out.
+
+    Request body:
+        recipe: Recipe string; materials keep their names, known or not
+        size: Batch size in grams
+        basis: "base" (the base weighs size, additions on top; default) or
+            "total" (everything together weighs size)
+    """
+    data = request.get_json(silent=True) or {}
+    recipe = str(data.get("recipe") or "").strip()
+    size = data.get("size")
+    if not recipe:
+        return jsonify(error_payload("recipe is required", "missing_recipe")), 400
+    if len(recipe) > MAX_RECIPE_LENGTH:
+        return jsonify(error_payload("recipe is too long", "recipe_too_long")), 400
+    if isinstance(size, bool):
+        size = None
+    try:
+        sheet = batch_sheet(recipe, size, str(data.get("basis") or "base"))
+    except BatchSheetError as error:
+        text = str(error)
+        return jsonify(error_payload(text, "invalid_batch", message=text)), 400
+    return jsonify(sheet)

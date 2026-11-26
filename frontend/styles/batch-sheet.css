@@ -1,0 +1,180 @@
+/* Batch sheet: a dialog with a preview, and a print layout that shows only
+   the sheet (#print-root, filled by BatchSheet.js while printing). */
+
+.bs-dialog {
+    width: min(760px, 94vw);
+    max-height: 92vh;
+    padding: var(--space-4);
+    border: none;
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--text-primary);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.bs-dialog::backdrop {
+    background: rgba(30, 24, 20, 0.45);
+}
+
+.bs-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+}
+
+.bs-controls input,
+.bs-controls select {
+    padding: var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+}
+
+.bs-controls input {
+    width: 110px;
+    text-align: right;
+}
+
+.bs-controls .btn-primary {
+    margin-left: auto;
+}
+
+.bs-preview {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    background: white;
+    color: #1d1a17;
+}
+
+/* The sheet itself: plain black on white, so it reads the same on paper */
+.bs-sheet {
+    font-family: var(--font-ui), Arial, sans-serif;
+    color: #1d1a17;
+}
+
+.bs-sheet h1 {
+    font-size: 20px;
+    margin: 0 0 4px;
+}
+
+.bs-facts,
+.bs-size {
+    margin: 0 0 4px;
+    font-size: 13px;
+}
+
+.bs-size {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.bs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+}
+
+.bs-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid #1d1a17;
+    padding: 4px 6px;
+}
+
+.bs-table td {
+    padding: 7px 6px;
+    border-bottom: 1px solid #c9c2ba;
+}
+
+.bs-table .bs-num {
+    text-align: right;
+}
+
+.bs-table .bs-weigh {
+    font-weight: 700;
+}
+
+.bs-tick {
+    width: 1.5em;
+    font-size: 16px;
+}
+
+.bs-lot,
+.bs-table th:last-child {
+    width: 7em;
+    padding-left: 14px;
+}
+
+.bs-lot {
+    font-size: 12px;
+}
+
+.bs-divider td {
+    padding-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid #1d1a17;
+}
+
+.bs-table tfoot td {
+    border-top: 2px solid #1d1a17;
+    border-bottom: none;
+    font-weight: 700;
+}
+
+.bs-blanks {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 14px 12px;
+    margin: 24px 0 0;
+    font-size: 13px;
+}
+
+.bs-blanks dt {
+    font-weight: 600;
+}
+
+.bs-blanks dd {
+    margin: 0;
+    border-bottom: 1px solid #1d1a17;
+    min-height: 1.2em;
+}
+
+#print-root {
+    display: none;
+}
+
+@media print {
+    body.printing > :not(#print-root) {
+        display: none !important;
+    }
+
+    body.printing #print-root {
+        display: block;
+    }
+
+    body.printing {
+        background: white;
+    }
+
+    @page {
+        margin: 15mm;
+    }
+
+    .bs-table tr {
+        break-inside: avoid;
+    }
+}

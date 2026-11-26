@@ -156,14 +156,15 @@ Before layering two glazes:
 - Maturing temperatures differ by > 1 cone → poor fit
 - Both glazes are runners → pooling/dripping risk
 
-### Batch Calculator
+### Batch Sheets
 
-Scale recipes for any batch size:
+Print a recipe scaled to the batch you're mixing:
 
-1. Open a glaze
-2. Click **Batch Calculator**
-3. Enter desired batch size (grams or pounds)
-4. View scaled amounts and optional cost estimate
+1. Click **Batch sheet** on a glaze card, or in the **Recipe editor** (which uses the recipe on screen, saved or not).
+2. Enter the batch size in grams and choose what it measures: **the base**, with additions weighed on top (a 1000 g batch of a recipe with 15.7 of additions weighs 1157 g), or **the whole batch**, additions included.
+3. Click **Print**. Only the sheet prints.
+
+The sheet lists every material as the recipe writes it, including ones the calculator doesn't know, such as a stain. Next to each weight is a running total, for weighing everything into one bucket without zeroing the scale, and the lot in use if one is recorded under **Materials**. It ends with blank lines for the date, who batched it, water added and specific gravity. The size and choice are remembered for next time.
 
 ### Recipe Optimizer
 

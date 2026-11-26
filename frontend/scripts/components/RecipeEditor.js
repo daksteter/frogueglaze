@@ -233,7 +233,20 @@ class RecipeEditor {
             await this.load(null);
             this.render(this.root.parentElement);
         });
-        bar.append(title, coneLabel, newBtn);
+        const sheetBtn = reEl('button', 'btn btn-secondary', 'Batch sheet');
+        sheetBtn.type = 'button';
+        sheetBtn.title = 'Scale this recipe to a batch size and print it';
+        sheetBtn.addEventListener('click', () => {
+            const recipe = reRecipeString(this.rows);
+            if (!recipe) { alert('Add materials and amounts first.'); return; }
+            openBatchSheet({
+                name: (this.glaze && this.glaze.name) || this.newName.trim() || 'New recipe',
+                recipe,
+                cone: this.cone,
+                detail: this.dirty ? 'Unsaved changes' : null,
+            });
+        });
+        bar.append(title, coneLabel, sheetBtn, newBtn);
         this._updateStatus();
         return bar;
     }
