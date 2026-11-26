@@ -22,7 +22,7 @@ studio, so features are judged by whether that studio needs them.
 1. Fork and trim: remove features the studio won't use, tests green on
    Linux. (Done 2026-11-25. Windows test runs are not a priority.)
 2. Recipe editor with a live calculator (UMF, SiO2:Al2O3, estimated CTE, limit
-   warnings), side-by-side comparison, saved versions.
+   warnings), side-by-side comparison, saved versions. (Built 2026-11-25.)
 3. A larger materials library from supplier data sheets, with the source of
    each analysis recorded; custom materials and lot analyses including LOI.
    DigitalFire's reference library is copyrighted: never copy from it.
@@ -73,6 +73,13 @@ what is implemented from what is planned.
 - Served frontend: `frontend/index.html` and `frontend/scripts/`. The older
   `static/dashboard.html` (with a "New Glaze" form) is not served.
 - Agent interfaces: `openglaze_cli.py`, `openglaze_mcp.py`, `skills/openglaze/`.
+- Recipe editor: `frontend/scripts/components/RecipeEditor.js` and
+  `frontend/styles/recipe-editor.css`, backed by `POST /api/chemistry/umf`,
+  `GET /api/chemistry/materials` and `/api/glazes/<id>/versions`
+  (`webapp/routes/recipes.py`, `core/glazes/versions.py`, table
+  `recipe_versions`). Recipes stay plain strings in `glazes.recipe`; a leading
+  `+` marks an addition. New frontend files must also go in the precache list
+  in `frontend/sw.js`, or its install fails.
 
 ## Cautions
 

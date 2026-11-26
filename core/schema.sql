@@ -146,6 +146,16 @@ CREATE TABLE IF NOT EXISTS lab_assignments (
     claimed_by_name TEXT
 );
 
+-- Recipe versions: every save from the recipe editor, newest has the highest id
+CREATE TABLE IF NOT EXISTS recipe_versions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    glaze_id TEXT NOT NULL REFERENCES glazes(id) ON DELETE CASCADE,
+    recipe TEXT NOT NULL,
+    note TEXT,
+    cone TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==========================================================================
 -- INDEXES
 -- ==========================================================================
@@ -164,3 +174,4 @@ CREATE INDEX IF NOT EXISTS idx_studios_invite ON studios(invite_code);
 CREATE INDEX IF NOT EXISTS idx_studio_members_user ON studio_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_studio ON lab_assignments(studio_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_combo ON lab_assignments(combination_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_versions_glaze ON recipe_versions(glaze_id, id);

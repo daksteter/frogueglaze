@@ -1,4 +1,5 @@
-"""Chemistry analysis routes: batch, scale, compare, optimize, substitutions, defects."""
+"""Chemistry analysis routes: UMF, materials, batch, scale, compare, optimize,
+substitutions, defects."""
 
 import logging
 
@@ -10,6 +11,55 @@ from core.security import rate_limit
 logger = logging.getLogger(__name__)
 
 bp = Blueprint("chemistry", __name__)
+
+MAX_RECIPE_LENGTH = 4000
+
+
+@bp.route("/api/chemistry/umf", methods=["POST"])
+@rate_limit(requests_per_minute=240)  # the recipe editor posts while typing
+def calculate_recipe_umf():
+    """Calculate UMF, ratios, CTE and limit warnings for a recipe string.
+
+    Request body:
+        recipe: Recipe string, e.g. "Custer Feldspar 45, Silica 25, +Red Iron Oxide 2"
+        cone: Target firing cone (optional, default 10)
+
+    Always 200 for a well-formed request. ``success`` is false when the recipe
+    cannot be fully calculated; with unknown materials the partial UMF is still
+    returned and ``missing_materials`` lists what was left out.
+    """
+    data = request.json or {}
+    recipe = str(data.get("recipe") or "").strip()
+    if not recipe:
+        return jsonify(error_payload("recipe is required", "missing_recipe")), 400
+    if len(recipe) > MAX_RECIPE_LENGTH:
+        return jsonify(error_payload("recipe is too long", "recipe_too_long")), 400
+
+    from core.chemistry.umf import calculate_umf
+
+    cone = data.get("cone")
+    return jsonify(
+        calculate_umf(recipe, cone=cone if cone not in ("", None) else None).to_dict()
+    )
+
+
+@bp.route("/api/chemistry/materials")
+@rate_limit(requests_per_minute=60)
+def list_chemistry_materials():
+    """List known materials (for the recipe editor's picker) and supported cones."""
+    from core.chemistry.data_loader import load_umf_targets
+    from core.chemistry.materials import get_all_materials
+
+    materials = sorted(
+        (
+            {"name": m.name, "category": m.category, "aliases": list(m.aliases)}
+            for m in get_all_materials().values()
+        ),
+        key=lambda m: m["name"].lower(),
+    )
+    ranges = (load_umf_targets() or {}).get("ranges", {})
+    cones = [key.removeprefix("cone_") for key in ranges if key.startswith("cone_")]
+    return jsonify({"materials": materials, "cones": cones})
 
 
 @bp.route("/api/chemistry/batch", methods=["POST"])

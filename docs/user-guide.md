@@ -64,39 +64,33 @@ The interface consists of:
    - **Food Safe** — Mark if tested food-safe
    - **Behavior** — Running, breaking, pooling notes
 
-### Recipe Formats
+### Recipe Format
 
-OpenGlaze accepts recipes in multiple formats:
+A recipe is a list of materials and amounts, separated by commas, semicolons or new lines:
 
-**Percentage format:**
 ```
-Feldspar: 45%
-Silica: 30%
-Whiting: 15%
-Kaolin: 10%
+Custer Feldspar 45, Silica 25, Whiting 18, EPK 12, +Red Iron Oxide 2
 ```
 
-**Gram format:**
-```
-Feldspar: 450g
-Silica: 300g
-Whiting: 150g
-Kaolin: 100g
-```
+- Amounts can be percentages or batch weights; the chemistry is the same either way.
+- A leading `+` marks an **addition** (a colorant or opacifier listed after the base recipe). Additions count in the chemistry like any other material.
+- Material names match the materials library, including common aliases (`EPK`, `Kaolin`, `Custer`). Unknown names are reported and left out of the chemistry.
 
-**UMF format:**
-```
-SiO2: 3.2
-Al2O3: 0.45
-CaO: 0.55
-```
+### The Recipe Editor
+
+Open **Recipe editor** in the sidebar for a new recipe, or **Edit recipe** on any glaze card.
+
+- **Rows:** type a material (suggestions come from the materials library) and an amount. Press Enter in the last amount to add a row. Tick **Addition** for colorants and opacifiers; the editor shows the base total and the additions separately.
+- **Live chemistry:** UMF grouped into fluxes, stabilizers and glass formers, SiO₂:Al₂O₃, estimated CTE, predicted surface and limit checks for the chosen cone update as you type. Materials not in the library are highlighted and named in an "Incomplete" warning.
+- **Saving:** **Save version** stores the recipe with an optional note. A new recipe needs a name and family first. The first save of an existing glaze also keeps its earlier recipe as a version, so nothing is lost.
+- **Versions:** each saved version shows its date and note. **Load** puts it back in the editor (not saved until you save); **Compare** shows it side by side.
+- **Compare with:** pick a saved version or another glaze to see both recipes and the chemical differences, with a plain-language note for each oxide that changed.
 
 ### Editing and Organizing
 
-- Click any glaze card to view details
-- Edit recipes, update photos, add notes
-- Use tags and families to organize collections
-- Filter by cone, atmosphere, surface, or food safety
+- Use the recipe editor to change recipes; each save is kept as a version
+- Use families to organize collections
+- Filter by family in the sidebar
 
 ### Importing Recipes
 

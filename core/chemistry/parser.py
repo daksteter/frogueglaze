@@ -74,6 +74,10 @@ class RecipeParser:
 
         for part in parts:
             part = part.strip()
+            # A leading "+" marks an addition (colorant, opacifier) listed
+            # after the base recipe; it counts in the chemistry like any other.
+            if part.startswith("+"):
+                part = part[1:].strip()
             if not part:
                 continue
 

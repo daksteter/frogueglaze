@@ -33,6 +33,48 @@ const API = {
         }
     },
 
+    // Like _fetch, but returns {ok, status, data} so callers can show the
+    // server's error message instead of a silent null.
+    async _send(path, method = 'GET', body) {
+        try {
+            const resp = await fetch(this._baseUrl + path, {
+                method,
+                headers: this._headers(),
+                body: body === undefined ? undefined : JSON.stringify(body),
+            });
+            const data = await resp.json().catch(() => null);
+            return { ok: resp.ok, status: resp.status, data };
+        } catch (e) {
+            return { ok: false, status: 0, data: { error: `Network error: ${e.message}` } };
+        }
+    },
+
+    // ---- Recipe editor ----
+
+    getMaterials() {
+        return this._send('/chemistry/materials');
+    },
+
+    calculateUMF(recipe, cone) {
+        return this._send('/chemistry/umf', 'POST', { recipe, cone });
+    },
+
+    compareRecipes(recipeA, recipeB, cone) {
+        return this._send('/chemistry/compare', 'POST', { recipe_a: recipeA, recipe_b: recipeB, cone });
+    },
+
+    getRecipeVersions(glazeId) {
+        return this._send(`/glazes/${encodeURIComponent(glazeId)}/versions`);
+    },
+
+    saveRecipeVersion(glazeId, data) {
+        return this._send(`/glazes/${encodeURIComponent(glazeId)}/versions`, 'POST', data);
+    },
+
+    createGlaze(data) {
+        return this._send('/glazes', 'POST', data);
+    },
+
     // ---- Existing ----
 
     async getGlazes() {

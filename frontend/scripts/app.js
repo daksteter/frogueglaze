@@ -20,6 +20,7 @@ let baseAutocomplete = null;
 let topAutocomplete = null;
 let studioPanel = null;
 let glazeTips = null;
+let recipeEditor = null;
 
 // Sanitize HTML to prevent XSS — uses DOMPurify if available
 function safeHTML(str) {
@@ -77,6 +78,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('GlazeTips created')
     } catch (e) {
         console.error('GlazeTips error:', e)
+    }
+
+    try {
+        recipeEditor = new RecipeEditor({ onSaved: refreshGlazes })
+    } catch (e) {
+        console.error('RecipeEditor error:', e)
     }
 
     // Load data from API
@@ -167,6 +174,9 @@ function switchView(view) {
     document.querySelectorAll('.sidebar-item[data-view]').forEach(item => {
         item.classList.toggle('active', item.dataset.view === view)
     })
+    // The recipe editor has no stage filter and its own empty states
+    document.getElementById('stage-bar').style.display = view === 'editor' ? 'none' : ''
+    if (view === 'editor') document.getElementById('empty-state').style.display = 'none'
 
     // Handle different views
     if (view === 'canvas') {
@@ -186,7 +196,30 @@ function switchView(view) {
         if (glazeTips) glazeTips.hide()
     } else if (view === 'tips') {
         if (glazeTips) glazeTips.show()
+    } else if (view === 'editor') {
+        renderRecipeEditorView()
+        if (glazeTips) glazeTips.hide()
     }
+}
+
+async function renderRecipeEditorView() {
+    if (!recipeEditor) return
+    if (!recipeEditor.loaded) await recipeEditor.load(null)
+    await recipeEditor.render(document.getElementById('canvas'))
+}
+
+// Open a glaze in the recipe editor (from a glaze card)
+async function openRecipeEditor(glazeId) {
+    if (!recipeEditor) return
+    if (recipeEditor.dirty && !confirm('Discard unsaved changes in the recipe editor?')) return
+    await recipeEditor.load(state.glazes.find(g => g.id === glazeId) || null)
+    switchView('editor')
+}
+
+async function refreshGlazes() {
+    state.glazes = await API.getGlazes() || []
+    window._glazesCache = state.glazes
+    populateGlazeSelects()
 }
 
 function renderGlazesView() {
@@ -282,6 +315,12 @@ function renderGlazesView() {
                         <p class="glaze-detail-source">Source: ${glaze.source}</p>
                     ` : ''}
                 `)
+                const editButton = document.createElement('button')
+                editButton.type = 'button'
+                editButton.className = 'btn btn-secondary glaze-edit-recipe'
+                editButton.textContent = glaze.recipe ? 'Edit recipe' : 'Add recipe'
+                editButton.addEventListener('click', () => openRecipeEditor(glaze.id))
+                card.appendChild(editButton)
                 grid.appendChild(card)
             })
 

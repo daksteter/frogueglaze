@@ -94,4 +94,6 @@ class Glaze:
         }
         if self.food_safe is not None:
             result["food_safe"] = self.food_safe
+        if self.cone is not None:
+            result["cone"] = self.cone
         return result

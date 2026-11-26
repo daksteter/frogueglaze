@@ -169,6 +169,7 @@ Example MCP config:
 - Store unlimited glazes with chemistry, recipes, and visual references
 - Track family relationships and base types
 - **UMF calculator** with automatic oxide analysis and SiO₂:Al₂O₃ ratio
+- **Recipe editor** with live UMF, CTE and limit checks as you type, saved versions, and side-by-side comparison
 - Recipe scaling and batch calculator with cost estimation
 - Food safety and cone range annotations (cone 06 through 10)
 

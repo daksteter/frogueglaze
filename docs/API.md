@@ -61,9 +61,25 @@ POST /api/glazes
 PUT /api/glazes/<glaze_id>
 DELETE /api/glazes/<glaze_id>
 GET /api/glazes/<glaze_id>/umf?cone=10
+GET /api/glazes/<glaze_id>/versions
+POST /api/glazes/<glaze_id>/versions
 ```
 
-Create/update payloads use the glaze fields accepted by `Glaze.from_dict`, including `id`, `name`, `family`, `hex`, `chemistry`, `behavior`, `layering`, `warning`, `recipe`, `catalog_code`, `food_safe`, and `notes`.
+Create/update payloads use the glaze fields accepted by `Glaze.from_dict`, including `id`, `name`, `family`, `hex`, `chemistry`, `behavior`, `layering`, `warning`, `recipe`, `catalog_code`, `food_safe`, `notes`, and `cone`.
+
+### Recipe versions
+
+`POST /api/glazes/<glaze_id>/versions` saves a recipe as the glaze's newest version and current recipe:
+
+```json
+{
+  "recipe": "Custer Feldspar 45, Silica 25, Whiting 18, EPK 12, +Red Iron Oxide 2",
+  "note": "add iron",
+  "cone": "6"
+}
+```
+
+It returns `201` with the saved version (`id`, `glaze_id`, `recipe`, `note`, `cone`, `created_at`). The first save of a glaze that already had a recipe also stores that earlier recipe as a version with the note "Recipe before first edit". `GET` lists versions newest first. Both return `404` for an unknown glaze.
 
 ## Combinations
 
@@ -84,6 +100,8 @@ GET /api/combinations/<combo_id>/compatibility?cone=10
 ## Chemistry
 
 ```http
+POST /api/chemistry/umf
+GET /api/chemistry/materials
 POST /api/chemistry/batch
 POST /api/chemistry/scale
 POST /api/chemistry/compare
@@ -91,6 +109,10 @@ POST /api/chemistry/optimize
 POST /api/chemistry/substitutions
 POST /api/chemistry/defects
 ```
+
+`POST /api/chemistry/umf` takes `{"recipe": "...", "cone": "6"}` and returns the UMF formula, ratios (`sio2_al2o3`, `flux_al2o3`, ...), estimated CTE (×10⁻⁶/°C), surface prediction, limit warnings and recommendations. It answers `200` for any well-formed request; `success` is `false` when the recipe cannot be fully calculated, and with unknown materials the partial UMF is still returned with `missing_materials` listing what was left out. The recipe editor calls it while you type.
+
+`GET /api/chemistry/materials` lists the known materials (`name`, `category`, `aliases`) and the cones that have limit ranges.
 
 Examples:
 
