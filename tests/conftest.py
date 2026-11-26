@@ -42,7 +42,7 @@ def sample_combinations(test_db_path):
 # Load canonical schema from the actual schema.sql so tests never drift out of sync
 _schema_path = Path(__file__).parent.parent / "core" / "schema.sql"
 if _schema_path.exists():
-    _SCHEMA_SQL = _schema_path.read_text()
+    _SCHEMA_SQL = _schema_path.read_text(encoding="utf-8")
 else:
     raise RuntimeError(f"schema.sql not found at {_schema_path}")
 

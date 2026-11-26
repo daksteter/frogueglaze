@@ -111,7 +111,7 @@ class TestD3CliExitCodes:
         return subprocess.run(
             [sys.executable, "-m", "openglaze_cli", *argv],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             cwd=ROOT,
             timeout=120,
         )
@@ -181,7 +181,7 @@ class TestD4MaterialSubstitutions:
                 "Custer Feldspar, Silica",
             ],
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             cwd=ROOT,
             timeout=120,
         )

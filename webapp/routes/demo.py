@@ -18,7 +18,7 @@ def _load_demo_glazes():
     try:
         demo_path = REPO_ROOT / "ceramics-foundation" / "data" / "demo-glazes.json"
         if demo_path.exists():
-            with open(demo_path, "r") as f:
+            with open(demo_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 return data.get("glazes", [])
     except Exception as e:

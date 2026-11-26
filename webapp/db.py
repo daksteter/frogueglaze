@@ -21,7 +21,7 @@ def init_db(db_path: str):
 
     schema_path = REPO_ROOT / "core" / "schema.sql"
     if schema_path.exists():
-        with open(schema_path, "r") as f:
+        with open(schema_path, "r", encoding="utf-8") as f:
             cursor.executescript(f.read())
             conn.commit()
 
@@ -126,7 +126,7 @@ def _load_seed_rules():
         logger.warning(f"Seed rules not found: {seed_path}")
         return []
     try:
-        with open(seed_path) as f:
+        with open(seed_path, encoding="utf-8") as f:
             data = json.load(f)
         rules = data.get("rules", [])
         return [

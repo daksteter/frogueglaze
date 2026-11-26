@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_compose():
-    return yaml.safe_load((ROOT / "docker-compose.yml").read_text())
+    return yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
 
 
 def test_default_compose_uses_postgres_with_env_substitution_on_app_port():
@@ -71,8 +71,8 @@ def test_reverse_proxy_profiles_reference_existing_configs():
 
 
 def test_tls_reverse_proxy_documents_expected_certificate_files():
-    tls_config = (ROOT / "nginx.tls.conf").read_text()
-    docs = (ROOT / "docs/self-hosting.md").read_text()
+    tls_config = (ROOT / "nginx.tls.conf").read_text(encoding="utf-8")
+    docs = (ROOT / "docs/self-hosting.md").read_text(encoding="utf-8")
 
     assert "/etc/nginx/certs/fullchain.pem" in tls_config
     assert "/etc/nginx/certs/privkey.pem" in tls_config
@@ -81,7 +81,7 @@ def test_tls_reverse_proxy_documents_expected_certificate_files():
 
 
 def test_ci_starts_container_and_checks_health_endpoint():
-    ci = (ROOT / ".github/workflows/ci.yml").read_text()
+    ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "docker run" in ci
     assert "/health" in ci
     assert "curl" in ci
@@ -89,7 +89,7 @@ def test_ci_starts_container_and_checks_health_endpoint():
 
 
 def test_api_docs_match_current_public_routes():
-    api = (ROOT / "docs/API.md").read_text()
+    api = (ROOT / "docs/API.md").read_text(encoding="utf-8")
     stale_paths = [
         "POST /api/auth/login",
         "POST /api/auth/register",
@@ -113,8 +113,8 @@ def test_api_docs_match_current_public_routes():
 
 
 def test_runtime_ports_and_cors_defaults_match_documented_docker_port():
-    app_factory = (ROOT / "webapp" / "app_factory.py").read_text()
-    readme = (ROOT / "README.md").read_text()
+    app_factory = (ROOT / "webapp" / "app_factory.py").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "http://localhost:8768" in readme
     assert "Open http://localhost:8768" in readme
@@ -124,19 +124,21 @@ def test_runtime_ports_and_cors_defaults_match_documented_docker_port():
 
 
 def test_experimental_cloud_env_names_postgres_host():
-    env = (ROOT / ".env.example").read_text()
+    env = (ROOT / ".env.example").read_text(encoding="utf-8")
     assert "POSTGRES_PASSWORD" in env
 
 
 def test_codecov_action_uses_v6_input_name():
-    ci = (ROOT / ".github/workflows/ci.yml").read_text()
+    ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6" in ci
     assert "files: ./coverage.xml" in ci
     assert "file: ./coverage.xml" not in ci
 
 
 def test_app_serves_docs_discovery_assets():
-    static_docs = (ROOT / "webapp" / "routes" / "static_docs.py").read_text()
+    static_docs = (ROOT / "webapp" / "routes" / "static_docs.py").read_text(
+        encoding="utf-8"
+    )
     assert 'REPO_ROOT / "docs"' in static_docs
     assert '"/llms.txt"' in static_docs
     assert '"/sitemap.xml"' in static_docs
@@ -155,15 +157,17 @@ def test_github_pages_is_canonical_public_host():
     ]
     stale_personal_pages = "pastor" + "simon1798.github.io/openglaze"
     for path in checked:
-        content = path.read_text()
+        content = path.read_text(encoding="utf-8")
         assert canonical in content, f"{path} does not reference canonical host"
         assert stale_personal_pages not in content
         assert "openglaze.kyanitelabs.tech" not in content
 
 
 def test_app_serves_sitemap_markdown_html_aliases():
-    static_docs = (ROOT / "webapp" / "routes" / "static_docs.py").read_text()
-    sitemap = (ROOT / "docs/sitemap.xml").read_text()
+    static_docs = (ROOT / "webapp" / "routes" / "static_docs.py").read_text(
+        encoding="utf-8"
+    )
+    sitemap = (ROOT / "docs/sitemap.xml").read_text(encoding="utf-8")
 
     for page in ["user-guide", "API", "self-hosting"]:
         assert f"/{page}.html" in sitemap

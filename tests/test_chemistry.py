@@ -342,7 +342,7 @@ class TestDemoGlazes:
             / "demo-glazes.json"
         )
         assert demo_path.exists(), "Demo glazes file not found"
-        with open(demo_path) as f:
+        with open(demo_path, encoding="utf-8") as f:
             data = json.load(f)
         assert len(data["glazes"]) >= 5
         for g in data["glazes"]:
@@ -363,7 +363,7 @@ class TestDemoGlazes:
             / "data"
             / "demo-glazes.json"
         )
-        with open(demo_path) as f:
+        with open(demo_path, encoding="utf-8") as f:
             data = json.load(f)
 
         for g in data["glazes"]:
@@ -401,7 +401,7 @@ class TestDemoGlazes:
             / "data"
             / "demo-glazes.json"
         )
-        with open(demo_path) as f:
+        with open(demo_path, encoding="utf-8") as f:
             data = json.load(f)
 
         cones = {g["cone"] for g in data["glazes"]}

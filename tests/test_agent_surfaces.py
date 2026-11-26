@@ -31,7 +31,7 @@ def test_public_skill_exists():
     skill = ROOT / "skills" / "openglaze" / "SKILL.md"
 
     assert skill.exists()
-    assert "python -m openglaze_mcp" in skill.read_text()
+    assert "python -m openglaze_mcp" in skill.read_text(encoding="utf-8")
 
 
 def test_agent_surfaces_preserve_low_fire_cone_values():

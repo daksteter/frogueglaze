@@ -43,7 +43,9 @@ def simulate_combo(
 
     # Load simulation prompt template
     prompt_path = Path(__file__).parent / "simulation-prompt.md"
-    prompt_template = prompt_path.read_text() if prompt_path.exists() else ""
+    prompt_template = (
+        prompt_path.read_text(encoding="utf-8") if prompt_path.exists() else ""
+    )
 
     # Build compatibility section if available
     compat_section = ""

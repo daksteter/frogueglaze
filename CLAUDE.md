@@ -1,144 +1,75 @@
-# KyaniteLabs Engineering Rules
+# frogueglaze
 
-**Repository**: openglaze
-**Description**: Free open-source ceramic glaze calculator, UMF analyzer, and recipe manager for potters and studios.
-**Tech Stack**: Python
+A fork of [KyaniteLabs/openglaze](https://github.com/KyaniteLabs/openglaze), a
+ceramic glaze calculator and recipe manager (Flask + SQLite, vanilla JS
+frontend). The fork exists to replace DigitalFire Insight-Live for one pottery
+studio, so features are judged by whether that studio needs them.
 
-This file is loaded automatically by Claude Code when working in any KyaniteLabs repository. It supplements the global rules in `~/.claude/CLAUDE.md`.
+## Relationship to upstream
 
-See KyaniteLabs/.github for org-wide rules. Project-specific rules below:
+- This is a fork, not a contribution branch. Upstream is run largely by an
+  automated bot pipeline; its org rules (issue-driven pipeline, labels,
+  Blacksmith runners, KyaniteLabs branch protection) do not apply here.
+- Remotes: `origin` = `daksteter/frogueglaze`, `upstream` = `KyaniteLabs/openglaze`.
+  The fork was taken from upstream master at `dd56e41` (2026-11-23).
+- `AGENTS.md`, `.cursorrules` and `.windsurfrules` are still upstream's
+  KyaniteLabs files. Their "Agent Surfaces" notes (CLI, MCP, skill) are
+  accurate; their org process rules are not. `tests/test_architecture_contract.py`
+  requires `AGENTS.md` to mention `PRODUCT.md` and `ARCHITECTURE.md`.
 
-## Project-Specific Context
+## Fork goals
 
-This is the **openglaze** repository. It is Free open-source ceramic glaze calculator, UMF analyzer, and recipe manager for potters and studios..
+1. Fork and trim: remove features the studio won't use, tests green on Linux
+   and on Windows.
+2. Recipe editor with a live calculator (UMF, SiO2:Al2O3, estimated CTE, limit
+   warnings), side-by-side comparison, saved versions.
+3. A larger materials library from supplier data sheets, with the source of
+   each analysis recorded; custom materials and lot analyses including LOI.
+   DigitalFire's reference library is copyrighted: never copy from it.
+4. An Insight-Live export importer that reports unmatched material names.
+5. Validate UMF output against Insight-Live using real studio recipes.
+6. Printable batch sheets, firing schedules, test-tile records with photos.
 
-# KyaniteLabs Engineering Rules
+Likely cuts, **not yet confirmed — do not remove without asking**:
+gamification (points, leaderboards), the prediction market, the SEO landing
+pages, and the Ory Kratos + PostgreSQL cloud-auth stack.
 
-This file is loaded automatically by Claude Code when working in any KyaniteLabs repository. It supplements the global rules in `~/.claude/CLAUDE.md`.
+## Setup and commands
 
-## Organization Principles
+Python 3.12 or newer (`requires-python` in `pyproject.toml`). On Debian the
+`python3-venv` package is needed for a venv.
 
-- **Local-first when it matters** — keep data, creative work, and knowledge close to the people who own it
-- **Useful over flashy** — solve real workflow problems
-- **Human-in-the-loop by design** — AI accelerates judgment, it doesn't erase it
-- **Open where it helps** — public projects are documented for discovery and reuse
-- **Craft matters** — README quality, tests, and maintenance are part of the product
-
-## Issue-Driven Development
-
-All contributions to KyaniteLabs repos flow through GitHub issues.
-
-### Workflow
-
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -m pytest -q          # tests (pytest.ini sets testpaths)
+.venv/bin/ruff check .                 # lint, 120-char cap
+.venv/bin/black --check .              # formatter is black (88), not ruff format
+.venv/bin/python server.py             # app on http://localhost:8767
+docker compose up -d                   # app on http://localhost:8768
 ```
-External contributor opens issue
-  → Template applies: bug/enhancement + needs-triage label
-  → Maintainer reviews, adds: approved label
-  → Auto-triage promotes to: agent-ready label
-  → Pipeline picks up → creates fix PR
 
-Owner/member (simongonzalezdc) opens issue
-  → Auto-triage detects member author
-  → Promotes directly to agent-ready (skips triage)
-  → Pipeline picks up → creates fix PR
-```
+Pin exact versions in `requirements*.txt`.
 
-### Label System
+## Where things are
 
-| Label | Meaning | Who sets it |
-|-------|---------|------------|
-| `needs-triage` | New issue, awaiting review | Issue template (auto) |
-| `approved` | Maintainer approved for work | Maintainer (manual) |
-| `agent-ready` | Ready for pipeline to pick up | Auto-triage (auto) |
-| `bug` | Bug report | Issue template (auto) |
-| `enhancement` | Feature request | Issue template (auto) |
-| `repo-pipeline` | Created by pipeline scanner | Pipeline (auto) |
-| `ci-failure` | CI broke on main branch | Pipeline (auto) |
-| `severity:low/medium/high/critical` | Impact level | Pipeline (auto) |
+Read `ARCHITECTURE.md` and `PRODUCT.md` before larger changes; they separate
+what is implemented from what is planned.
 
-### Rules for Agents Creating Issues
+- Chemistry engine: `core/chemistry/` (`umf.py`, `optimizer.py`,
+  `compatibility.py`, `materials.py`, `data_loader.py`). It is the solid part;
+  most fork work is UI, data and parsing around it.
+- Reference data: `ceramics-foundation/data/` (`materials.json` has 36 materials).
+- HTTP app: `server.py` plus `webapp/routes/`; glaze CRUD is `webapp/routes/glazes.py`.
+- Served frontend: `frontend/index.html` and `frontend/scripts/`. The older
+  `static/dashboard.html` (with a "New Glaze" form) is not served.
+- Agent interfaces: `openglaze_cli.py`, `openglaze_mcp.py`, `skills/openglaze/`.
 
-- Never create issues without the `repo-pipeline` label
-- Always include reproduction steps or evidence
-- Set severity based on: does it break main? does it affect users? is it cosmetic?
-- Link to the relevant CI run, commit, or file
+## Cautions
 
-## Pipeline Awareness
-
-The GITHUB_pipeline runs a triage cycle every 30 minutes. When working in KyaniteLabs repos, be aware:
-
-1. **Your PRs will be monitored** by `pr-maintainer.py` — it fixes CI failures, rebases, and addresses review comments
-2. **Do not delete `fix/issue-*` branches** — the pipeline manages these
-3. **Pipeline-created issues** have the `repo-pipeline` label — treat them as real issues
-4. **Circuit breaker** — if the pipeline enters RED state, all automated work stops until manually reset
-5. **Issue priority** — pipeline sorts by severity (critical > high > medium > low), then by age
-
-## CI Standards
-
-All KyaniteLabs repos must have these CI checks (via GitHub Actions on Blacksmith runners):
-
-### Required Checks (must pass before merge)
-
-| Check | Tool | Config |
-|-------|------|--------|
-| Lint | ruff | `ruff check . && ruff format --check .` |
-| Test | pytest | `pytest --tb=short -q` |
-| Build | pip install | `pip install -e .` (Python) or equivalent |
-
-### Recommended Checks (add when applicable)
-
-| Check | Tool | When |
-|-------|------|------|
-| Security scan | bandit + pip-audit | Python repos |
-| Type check | mypy | repos with type annotations |
-| Docker build | docker build | repos with Dockerfile |
-| Package surface | custom script | published packages |
-| Compatibility matrix | multi-Python/Node | public packages |
-
-### CI Rules
-
-- All CI runs on `blacksmith-2vcpu-ubuntu-2404` runners
-- CI must pass on all supported Python/Node versions
-- Never skip CI (`--no-verify`) — if it fails, fix the root cause
-- CI failures on main get auto-detected by the pipeline
-
-## Branch Protection
-
-All `main`/`master` branches in KyaniteLabs repos are protected:
-
-- No direct pushes — everything through PRs
-- Required status checks must pass
-- Branches must be up-to-date before merge
-- Force pushes blocked
-- Linear history required (squash or rebase merge)
-
-## Repository Standards
-
-### Python Repos
-- **Formatter**: ruff (not black)
-- **Linter**: ruff
-- **Config**: `pyproject.toml` (not setup.py/setup.cfg)
-- **Python**: minimum 3.11, test on 3.11 and latest
-- **Dependencies**: pin exact versions
-
-### Node/TypeScript Repos
-- **Package manager**: pnpm (not npm/yarn)
-- **Formatter**: prettier
-- **Linter**: eslint
-
-### All Repos
-- **README.md**: Must explain what it is, how to run it, how to test it
-- **CHANGELOG.md**: Updated with every release
-- **LICENSE**: MIT (org default)
-- **CONTRIBUTING.md**: Points to org contributing guide
-
-## Agent Coordination
-
-When multiple agents work on the same repo:
-
-1. **Claim your scope** — note in the issue which files/areas you're working on
-2. **Don't edit files another agent is actively modifying** — check open PRs first
-3. **Rebase frequently** — pull from main before pushing to avoid conflicts
-4. **Test before pushing** — run the same CI checks locally first
-5. **Communicate via issues** — leave comments on issues for context, not in code
-
+- Starting the app creates and seeds its configured SQLite database. Use a
+  throwaway database for experiments, never the studio's real one.
+- Personal mode has no authentication; keep it bound to a private address.
+- The default personal config points the AI assistant at an Ollama cloud model,
+  so prompts and recipe context can leave the machine. Chemistry needs no AI.
+- Chemistry results are estimates, not food-safety or kiln certification.

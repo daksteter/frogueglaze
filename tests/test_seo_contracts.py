@@ -63,7 +63,7 @@ class HeadParser(HTMLParser):
 
 def parse_html(path: Path) -> HeadParser:
     parser = HeadParser()
-    parser.feed(path.read_text())
+    parser.feed(path.read_text(encoding="utf-8"))
     return parser
 
 
@@ -71,7 +71,7 @@ def test_seo_landing_pages_have_indexable_metadata_and_schema():
     for page in SEO_PAGES:
         path = DOCS / page
         assert path.exists(), f"missing {page}"
-        html = path.read_text()
+        html = path.read_text(encoding="utf-8")
         parsed = parse_html(path)
 
         assert "<h1" in html
@@ -88,7 +88,7 @@ def test_seo_landing_pages_have_indexable_metadata_and_schema():
 
 
 def test_homepage_links_to_all_search_intent_pages():
-    homepage = (DOCS / "index.html").read_text()
+    homepage = (DOCS / "index.html").read_text(encoding="utf-8")
     for page in SEO_PAGES:
         assert page in homepage
 
@@ -108,9 +108,9 @@ def test_sitemap_lists_all_discovery_pages_with_current_lastmod():
 
 
 def test_ai_files_are_truthful_and_answer_engine_ready():
-    ai = (DOCS / "ai.txt").read_text()
-    llms = (DOCS / "llms.txt").read_text()
-    llms_full = (DOCS / "llms-full.txt").read_text()
+    ai = (DOCS / "ai.txt").read_text(encoding="utf-8")
+    llms = (DOCS / "llms.txt").read_text(encoding="utf-8")
+    llms_full = (DOCS / "llms-full.txt").read_text(encoding="utf-8")
 
     for content in (ai, llms, llms_full):
         assert "139 automated tests" in content
@@ -130,18 +130,20 @@ def test_repository_growth_metadata_exists():
     social_png = DOCS / "social-preview.png"
 
     assert citation.exists()
-    assert "title: OpenGlaze" in citation.read_text()
+    assert "title: OpenGlaze" in citation.read_text(encoding="utf-8")
     assert dependabot.exists()
-    assert "pip" in dependabot.read_text()
+    assert "pip" in dependabot.read_text(encoding="utf-8")
     assert social_svg.exists()
-    assert re.search(r"<svg[^>]+viewBox=\"0 0 1280 640\"", social_svg.read_text())
+    assert re.search(
+        r"<svg[^>]+viewBox=\"0 0 1280 640\"", social_svg.read_text(encoding="utf-8")
+    )
     assert social_png.exists()
     assert social_png.stat().st_size < 1_000_000
 
 
 def test_static_pages_use_project_relative_internal_links():
     for path in DOCS.glob("*.html"):
-        html = path.read_text()
+        html = path.read_text(encoding="utf-8")
         message = f"{path.name} has root-relative hrefs that break on project Pages"
         assert 'href="/' not in html, message
 
@@ -149,7 +151,7 @@ def test_static_pages_use_project_relative_internal_links():
 def test_homepage_example_matches_the_actual_chemistry_engine():
     from core.chemistry.umf import calculate_umf
 
-    homepage = (DOCS / "index.html").read_text()
+    homepage = (DOCS / "index.html").read_text(encoding="utf-8")
     recipe_table = re.search(r'<table id="recipe".*?</table>', homepage, re.S)
     assert recipe_table, "Show a real recipe rather than an invented swatch preview"
     rows = re.findall(r'<th scope="row">(.*?)</th><td>([0-9.]+)</td>', recipe_table[0])
@@ -189,7 +191,7 @@ def test_homepage_metadata_uses_public_pages_url():
 
 
 def test_homepage_does_not_present_unverified_firing_outcomes_as_proof():
-    homepage = (DOCS / "index.html").read_text()
+    homepage = (DOCS / "index.html").read_text(encoding="utf-8")
     for claim in (
         "Compatible with cone 10 stoneware bodies",
         "Replace all silica with kaolin",

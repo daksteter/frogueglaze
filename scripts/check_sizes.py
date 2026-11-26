@@ -46,7 +46,7 @@ ALLOWLIST: dict[str, str] = {
 
 def function_lengths(path: Path) -> list[tuple[int, str, int]]:
     """Return (length, qualified_name, lineno) for every function in path."""
-    tree = ast.parse(path.read_text())
+    tree = ast.parse(path.read_text(encoding="utf-8"))
     found = []
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
@@ -74,7 +74,7 @@ def main(root: Path | None = None, allowlist: dict[str, str] | None = None) -> i
 
     for path in py_files:
         rel = path.relative_to(scan_root).as_posix()
-        line_count = len(path.read_text().splitlines())
+        line_count = len(path.read_text(encoding="utf-8").splitlines())
         if line_count > MAX_FILE_LINES:
             violations.append(f"{rel}: file is {line_count} ln (max {MAX_FILE_LINES})")
         for length, name, lineno in function_lengths(path):

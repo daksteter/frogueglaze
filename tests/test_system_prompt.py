@@ -7,7 +7,7 @@ from pathlib import Path
 @pytest.fixture
 def prompt_text():
     prompt_path = Path(__file__).parent.parent / "config" / "kama-system-prompt.txt"
-    return prompt_path.read_text()
+    return prompt_path.read_text(encoding="utf-8")
 
 
 class TestNoToolReferences:

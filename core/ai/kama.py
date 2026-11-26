@@ -262,7 +262,7 @@ ANALYZE and PREDICT — don't just approve or deny. Warn about risks with qualif
         )
         try:
             if prompt_path.exists():
-                with open(prompt_path, "r") as f:
+                with open(prompt_path, "r", encoding="utf-8") as f:
                     prompt = f.read().strip()
                     if prompt:
                         logger.info(f"Loaded system prompt from {prompt_path}")

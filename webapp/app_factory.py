@@ -100,6 +100,7 @@ def create_app(config: dict = None) -> Flask:
     init_db(db_path)
 
     app.before_request(_make_request_setup(db_path))
+    app.teardown_appcontext(_close_request_db)
 
     _register_error_handlers(app)
 
@@ -139,6 +140,17 @@ def _make_request_setup(db_path: str):
             g.studio_manager = StudioManager(db_path, user_id=studio_user_id)
 
     return setup_managers
+
+
+def _close_request_db(exc=None) -> None:
+    """Close the shared per-request connection opened by setup_managers.
+
+    Leaving it to garbage collection keeps the SQLite file open, which on
+    Windows blocks deleting or moving it (WinError 32).
+    """
+    conn = g.pop("db_conn", None)
+    if conn is not None:
+        conn.close()
 
 
 def _configure_cors(app: Flask) -> None:

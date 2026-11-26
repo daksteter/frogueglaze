@@ -8,7 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_architecture_inventory():
-    policy = json.loads((ROOT / "qa/architecture-paths.json").read_text())
+    policy = json.loads(
+        (ROOT / "qa/architecture-paths.json").read_text(encoding="utf-8")
+    )
     assert set(policy) == {"schema_version", "repo", "paths"}
     assert policy["schema_version"] == 1
     assert policy["repo"] == "github.com/KyaniteLabs/openglaze"
@@ -37,7 +39,7 @@ def test_architecture_inventory():
 
 
 def test_worker_read_contract():
-    instructions = (ROOT / "AGENTS.md").read_text()
+    instructions = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
     for name in ("PRODUCT.md", "ARCHITECTURE.md"):
         assert name in instructions
-        assert (ROOT / name).read_text().strip()
+        assert (ROOT / name).read_text(encoding="utf-8").strip()

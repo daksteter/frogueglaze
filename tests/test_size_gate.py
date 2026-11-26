@@ -21,7 +21,7 @@ _spec.loader.exec_module(check_sizes)
 def _write_module(root: Path, rel: str, body: str) -> None:
     path = root / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(body)
+    path.write_text(body, encoding="utf-8")
 
 
 def _oversized() -> str:
@@ -94,7 +94,7 @@ def test_gate_is_importable_as_ci_invokes_it():
     proc = subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / "check_sizes.py")],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         cwd=REPO_ROOT,
         timeout=120,
     )

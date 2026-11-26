@@ -75,7 +75,7 @@ def test_cli_retry_commands_run_end_to_end():
             [sys.executable, "-m", "openglaze_cli", *argv],
             cwd=REPO_ROOT,
             capture_output=True,
-            text=True,
+            encoding="utf-8",
             timeout=120,
         )
         assert proc.returncode == 0, (code, proc.stderr)

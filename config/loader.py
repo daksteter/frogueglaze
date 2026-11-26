@@ -276,7 +276,7 @@ def load_config(mode: Optional[ModeConfig] = None) -> dict:
 
     if config_file.exists():
         try:
-            with open(config_file, "r") as f:
+            with open(config_file, "r", encoding="utf-8") as f:
                 raw_content = f.read()
 
             # Substitute environment variables

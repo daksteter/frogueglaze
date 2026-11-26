@@ -15,7 +15,7 @@ class TestRouteImports:
         """server.py should not import ToolRegistry."""
         import server
 
-        source = Path(server.__file__).read_text()
+        source = Path(server.__file__).read_text(encoding="utf-8")
         assert "from core.ai.tools import ToolRegistry" not in source
 
     def test_import_context_retriever_works(self):

@@ -277,7 +277,9 @@ class ExperimentMachine(RuleBasedStateMachine):
         os.close(fd)
         conn = connect_db(self.path)
         conn.executescript(
-            (Path(__file__).parent.parent / "core" / "schema.sql").read_text()
+            (Path(__file__).parent.parent / "core" / "schema.sql").read_text(
+                encoding="utf-8"
+            )
         )
         conn.commit()
         conn.close()
@@ -486,7 +488,9 @@ class ClaimMachine(RuleBasedStateMachine):
         os.close(fd)
         conn = connect_db(self.path)
         conn.executescript(
-            (Path(__file__).parent.parent / "core" / "schema.sql").read_text()
+            (Path(__file__).parent.parent / "core" / "schema.sql").read_text(
+                encoding="utf-8"
+            )
         )
         conn.commit()
         conn.close()

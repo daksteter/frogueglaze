@@ -42,7 +42,7 @@ def _find_studios_dir() -> Optional[Path]:
 def _load_json(path: Path) -> Optional[Any]:
     """Load a JSON file, returning None on any error."""
     try:
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
         logger.debug(f"Could not load {path}: {e}")

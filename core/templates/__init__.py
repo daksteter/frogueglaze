@@ -9,7 +9,7 @@ def load_template(template_id: str) -> Optional[Dict]:
     """Load a template by ID."""
     template_path = Path(__file__).parent / f"{template_id}.yaml"
     if template_path.exists():
-        with open(template_path, "r") as f:
+        with open(template_path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
     return None
 
