@@ -7,7 +7,6 @@ from flask import Blueprint, g, jsonify, request
 from core.errors import error_payload
 from core.experiments import Experiment
 from core.security import rate_limit
-from webapp.helpers import require_auth_for_write
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +55,6 @@ def get_experiment(exp_id: int):
 @rate_limit(requests_per_minute=30)
 def create_experiment():
     """Create a new experiment."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -75,9 +71,6 @@ def create_experiment():
 @rate_limit(requests_per_minute=30)
 def advance_experiment(exp_id: int):
     """Advance experiment to next stage."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     success = g.exp_manager.advance_stage(exp_id)
     if success:
         return jsonify({"success": True})
@@ -88,9 +81,6 @@ def advance_experiment(exp_id: int):
 @rate_limit(requests_per_minute=30)
 def record_experiment_result(exp_id: int):
     """Record experiment result."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json or {}
     result = data.get("result", "")
     rating = data.get("rating")
@@ -105,9 +95,6 @@ def record_experiment_result(exp_id: int):
 @rate_limit(requests_per_minute=30)
 def archive_experiment(exp_id: int):
     """Archive an experiment."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json or {}
     archive_type = data.get("type", "successful")
     success = g.exp_manager.archive(exp_id, archive_type)
@@ -119,9 +106,6 @@ def archive_experiment(exp_id: int):
 @bp.route("/api/experiments/<int:exp_id>/firing-log", methods=["POST"])
 def submit_firing_log(exp_id):
     """Submit a firing log for an experiment."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json or {}
     try:
         success = g.exp_manager.log_firing_result(exp_id, data)
@@ -154,9 +138,6 @@ def submit_firing_log(exp_id):
 @bp.route("/api/experiments/<int:exp_id>/share", methods=["POST"])
 def share_experiment(exp_id):
     """Share experiment result with studio."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     from webapp.app_factory import STUDIOS_AVAILABLE
 
     if not STUDIOS_AVAILABLE:

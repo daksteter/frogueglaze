@@ -34,25 +34,11 @@ def simple_login():
 
 @bp.route("/api/auth/me")
 def auth_me():
-    """Get current user info from simple auth or Ory."""
-    from webapp.helpers import AUTH_AVAILABLE
-
-    from core.auth.middleware import get_simple_user
+    """Get current user info from the simple-auth token."""
+    from core.auth import get_simple_user
 
     simple = get_simple_user()
     if simple:
         return jsonify(simple)
-
-    if AUTH_AVAILABLE:
-        from core.auth import get_current_user
-
-        user = get_current_user()
-        if user:
-            return jsonify(
-                {
-                    "user_id": user["user_id"],
-                    "display_name": user.get("email", user.get("display_name", "")),
-                }
-            )
 
     return jsonify(error_payload("Not authenticated", "auth_required")), 401

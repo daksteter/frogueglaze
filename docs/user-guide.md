@@ -13,8 +13,7 @@ Complete guide to using OpenGlaze for glaze management, experimentation, and stu
 7. [Studio Collaboration](#studio-collaboration)
 8. [Firing Logs](#firing-logs)
 9. [Photo Documentation](#photo-documentation)
-10. [Gamification](#gamification)
-11. [Tips and Best Practices](#tips-and-best-practices)
+10. [Tips and Best Practices](#tips-and-best-practices)
 
 ## Getting Started
 
@@ -359,7 +358,6 @@ Studio members share:
 - Experiment history
 - Firing logs
 - Photo galleries
-- Leaderboards
 
 ### Lab Assignments
 
@@ -426,45 +424,6 @@ Link firing logs to experiments and glazes:
 - **Close-ups**: Macro for detail shots
 - **Consistency**: Same setup for comparison shots
 
-## Gamification
-
-### Earning Points
-
-| Activity | Points |
-|----------|--------|
-| Add a glaze | 10 |
-| Create an experiment | 25 |
-| Complete an experiment (all 6 stages) | 100 |
-| Document a firing | 15 |
-| Upload a photo | 5 |
-| Correctly predict a combination | 50 |
-| Daily login | 5 |
-
-### Streaks
-
-- Log in and perform an activity daily to build streaks
-- Streak milestones: 7 days, 30 days, 100 days
-- Streaks multiply point earnings
-
-### Badges
-
-Unlock badges for achievements:
-
-| Badge | Requirement |
-|-------|-------------|
-| First Glaze | Add your first glaze |
-| Experimenter | Complete 10 experiments |
-| Chemist | Calculate UMF for 50 glazes |
-| Photographer | Upload 100 photos |
-| Streak Master | 30-day activity streak |
-| Prediction Pro | 10 correct combination predictions |
-| Studio Founder | Create a studio with 3+ members |
-
-### Leaderboards
-
-- Studio-wide leaderboards (monthly and all-time)
-- Rank titles: Novice Potter → Apprentice → Journeyman → Master → Glaze Wizard
-
 ## Tips and Best Practices
 
 ### For Beginners
@@ -478,10 +437,9 @@ Unlock badges for achievements:
 ### For Advanced Users
 
 1. **Build a test matrix** — Systematically vary one oxide at a time
-2. **Use the prediction market** — Challenge yourself and others
-3. **Contribute to Ceramics Foundation** — Submit verified data
-4. **Automate with API** — Build tools on top of OpenGlaze
-5. **Host for your community** — Set up instances for local guilds
+2. **Contribute to Ceramics Foundation** — Submit verified data
+3. **Automate with API** — Build tools on top of OpenGlaze
+4. **Host for your community** — Set up instances for local guilds
 
 ### For Studio Managers
 

@@ -87,7 +87,7 @@ class ConversationStore:
     def _session_key(self, session_id: Optional[str], user_id: Optional[str]) -> str:
         """Generate a unique key for session isolation."""
         if user_id:
-            # In cloud mode, isolate by user
+            # Isolate by user when one is known
             return hashlib.sha256(f"user:{user_id}".encode()).hexdigest()[:32]
         elif session_id:
             # Session-based isolation
@@ -317,7 +317,7 @@ ANALYZE and PREDICT — don't just approve or deny. Warn about risks with qualif
             question: The question to ask
             context: Optional context (glazes, combinations, etc.)
             session_id: Session ID for conversation isolation
-            user_id: User ID for cloud mode isolation
+            user_id: User ID for per-user isolation
             images: Optional list of base64-encoded image strings
 
         Returns:
@@ -359,7 +359,7 @@ ANALYZE and PREDICT — don't just approve or deny. Warn about risks with qualif
             question: The question to ask
             context: Optional context
             session_id: Session ID for conversation isolation
-            user_id: User ID for cloud mode isolation
+            user_id: User ID for per-user isolation
             images: Optional list of base64-encoded image strings
 
         Yields:
@@ -909,7 +909,7 @@ def ask_kama(
         context: Optional context
         clear: Clear conversation memory before asking
         session_id: Session ID for conversation isolation
-        user_id: User ID for cloud mode isolation
+        user_id: User ID for per-user isolation
         images: Optional list of base64-encoded image strings
 
     Returns:
@@ -937,7 +937,7 @@ def ask_kama_stream(
         context: Optional context
         clear: Clear conversation memory before asking
         session_id: Session ID for conversation isolation
-        user_id: User ID for cloud mode isolation
+        user_id: User ID for per-user isolation
         images: Optional list of base64-encoded image strings
 
     Yields:

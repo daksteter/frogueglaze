@@ -37,13 +37,11 @@ The default Docker deployment persists state with named volumes:
 | `/api/auth` | Simple login/current-user routes |
 | `/api/studios` | Lightweight studio and lab queue collaboration |
 | `/api/upload`, `/api/photos` | Image upload and gallery data |
-| `/api/stats`, `/api/progress` | Gamification/progress when auth context exists |
-| `/api/predictions` | Prediction market when auth context exists |
 | `/health`, `/api/health` | Health and mode information |
 
 ### Data access layer
 
-Current data access is SQLite-only. `core/db.py` opens `sqlite3` connections and managers receive a database path. The repository includes `psycopg2-binary` and SQLAlchemy as dependencies, and the compose file includes an experimental PostgreSQL service, but app managers are not currently PostgreSQL-backed.
+Data access is SQLite-only. `core/db.py` opens `sqlite3` connections and managers receive a database path.
 
 ### Chemistry engine
 
@@ -62,7 +60,7 @@ These are covered by focused tests in `tests/test_chemistry.py` and route tests 
 
 ### Auth and collaboration
 
-The supported default is personal/single-user mode. Studio collaboration uses simple bearer tokens created by `/api/auth/simple-login`. These sessions are in memory and reset on process restart. Ory/Kratos hooks exist for future/cloud work, but they are not part of the supported default launch path.
+The app runs in personal/single-user mode. Studio collaboration uses simple bearer tokens created by `/api/auth/simple-login`. These sessions are in memory and reset on process restart.
 
 ### Frontend
 
@@ -93,7 +91,6 @@ The included `nginx.conf` is minimal and intended as a starting point.
 
 ## Known architectural limits
 
-- PostgreSQL is not wired into managers yet.
 - Simple-auth sessions are process-local and not durable.
 - In-memory rate limiting is per-process.
 - Uploads are local files, not object storage.
@@ -102,8 +99,7 @@ The included `nginx.conf` is minimal and intended as a starting point.
 
 ## Future scaling path
 
-1. Introduce a real database abstraction for SQLite/PostgreSQL parity.
-2. Add durable sessions/rate limits via SQLite or Redis.
-3. Move long AI/batch work to background jobs.
+1. Add durable sessions/rate limits via SQLite or Redis.
+2. Move long AI/batch work to background jobs.
 4. Add object storage for uploads.
 5. Add deeper health checks and structured production logging.

@@ -4,7 +4,7 @@ A ceramic studio workbench for organizing glazes and layered combinations, track
 
 ## What exists
 
-- A Flask/vanilla-JavaScript studio with combinations, glaze library, photos, experiment progress, predictions, basics and Kama panel. Personal mode uses local SQLite; cloud mode adds auth/multi-user boundaries and requires its own operational verification.
+- A Flask/vanilla-JavaScript studio with combinations, glaze library, photos, experiment progress, predictions, basics and Kama panel. It runs in personal mode on local SQLite; the fork removed upstream's cloud mode (Ory Kratos auth, PostgreSQL).
 - A shared chemistry library plus CLI and dependency-free stdio MCP adapter for UMF, predicted surface/CTE, compatibility, color, substitution and search. These are heuristics/calculations, not observed firing outcomes.
 - Kama retrieval/prompt/streaming and provider adapters. AI is optional; model/endpoints determine whether prompts/recipe context leave the host. Personal config advertises Ollama with `kimi-k2.5:cloud`; do not equate “personal” or a localhost API with offline/private inference.
 - Bundled `ceramics-foundation` reference data: 36 materials, 21 oxides, 7 colorants, 8 clay bodies, 8 demo glazes, 15 chemistry rules, 106 seed chemistry rules; plus firing/schedules, UMF target ranges, thermal-expansion, substitutions, layering, surface-prediction and food-safety guidance. These are source counts, not independently validated scientific coverage. Studio schemas/templates are not all valid JSON (the studio-profile schema is a placeholder).

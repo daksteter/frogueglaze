@@ -11,17 +11,19 @@ def load_compose():
     return yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
 
 
-def test_default_compose_uses_postgres_with_env_substitution_on_app_port():
+def test_default_compose_is_single_service_sqlite_on_named_volumes():
     compose = load_compose()
     app = compose["services"]["openglaze"]
 
-    env = dict(item.split("=", 1) for item in app["environment"])
-    assert "DATABASE_URL" in env
-    assert "${POSTGRES_PASSWORD:-openglaze}" in env["DATABASE_URL"]
-    assert "${BASE_URL:-http://localhost:8768}" == env["BASE_URL"]
-
     assert "8768:8768" in app["ports"]
-    assert "postgres_data" in compose["volumes"]
+    assert "openglaze_data:/data" in app["volumes"]
+    assert "openglaze_uploads:/app/frontend/uploads" in app["volumes"]
+    assert set(compose["volumes"]) == {"openglaze_data", "openglaze_uploads"}
+    # The Ory Kratos + PostgreSQL cloud-auth stack was removed from the fork.
+    for removed in ("postgres", "kratos", "kratos-migrate", "mailhog"):
+        assert removed not in compose["services"]
+    env = " ".join(app.get("environment", []))
+    assert "DATABASE_URL" not in env and "KRATOS" not in env
 
 
 def test_compose_environment_interpolations_all_have_defaults():
@@ -38,21 +40,6 @@ def test_compose_environment_interpolations_all_have_defaults():
                 if ":-" not in match:
                     offenders.append(f"{name}: {item}")
     assert not offenders, f"compose vars without defaults: {offenders}"
-
-
-def test_postgres_volume_mount_matches_image_major_layout():
-    """postgres 18+ images refuse the legacy /var/lib/postgresql/data mount
-    (docker-library/postgres#37); below 18 they require it."""
-    compose = load_compose()
-    postgres = compose["services"]["postgres"]
-
-    major = int(postgres["image"].split(":")[1].split("-")[0])
-    mounts = [v.split(":")[-1] for v in postgres["volumes"]]
-
-    if major >= 18:
-        assert "/var/lib/postgresql/data" not in mounts
-    else:
-        assert "/var/lib/postgresql/data" in mounts
 
 
 def test_reverse_proxy_profiles_reference_existing_configs():
@@ -96,6 +83,9 @@ def test_api_docs_match_current_public_routes():
         "POST /api/uploads",
         "GET /api/gamification/stats",
         "GET /api/gamification/leaderboard",
+        "GET /api/stats",
+        "GET /api/progress",
+        "/api/predictions",
     ]
     for path in stale_paths:
         assert path not in api
@@ -104,9 +94,6 @@ def test_api_docs_match_current_public_routes():
         "POST /api/auth/simple-login",
         "GET /api/auth/me",
         "POST /api/upload",
-        "GET /api/stats",
-        "GET /api/progress",
-        "GET /api/predictions/leaderboard",
     ]
     for path in current_paths:
         assert path in api
@@ -123,9 +110,11 @@ def test_runtime_ports_and_cors_defaults_match_documented_docker_port():
     assert "configured_port" in app_factory
 
 
-def test_experimental_cloud_env_names_postgres_host():
+def test_env_example_has_no_cloud_auth_settings():
     env = (ROOT / ".env.example").read_text(encoding="utf-8")
-    assert "POSTGRES_PASSWORD" in env
+    assert "OPENGLAZE_MODE=personal" in env
+    for removed in ("POSTGRES_PASSWORD", "KRATOS", "OPENGLAZE_MODE=cloud"):
+        assert removed not in env
 
 
 def test_codecov_action_uses_v6_input_name():
@@ -135,43 +124,11 @@ def test_codecov_action_uses_v6_input_name():
     assert "file: ./coverage.xml" not in ci
 
 
-def test_app_serves_docs_discovery_assets():
+def test_app_no_longer_serves_seo_discovery_assets():
+    """The fork dropped upstream's SEO landing pages and discovery files."""
     static_docs = (ROOT / "webapp" / "routes" / "static_docs.py").read_text(
         encoding="utf-8"
     )
-    assert 'REPO_ROOT / "docs"' in static_docs
-    assert '"/llms.txt"' in static_docs
-    assert '"/sitemap.xml"' in static_docs
-    assert '"/social-preview.png"' in static_docs
-
-
-def test_github_pages_is_canonical_public_host():
-    canonical = "https://kyanitelabs.github.io/openglaze"
-    checked = [
-        ROOT / "README.md",
-        ROOT / "docs/llms.txt",
-        ROOT / "docs/llms-full.txt",
-        ROOT / "docs/ai.txt",
-        ROOT / "docs/sitemap.xml",
-        ROOT / "tests/test_seo_contracts.py",
-    ]
-    stale_personal_pages = "pastor" + "simon1798.github.io/openglaze"
-    for path in checked:
-        content = path.read_text(encoding="utf-8")
-        assert canonical in content, f"{path} does not reference canonical host"
-        assert stale_personal_pages not in content
-        assert "openglaze.kyanitelabs.tech" not in content
-
-
-def test_app_serves_sitemap_markdown_html_aliases():
-    static_docs = (ROOT / "webapp" / "routes" / "static_docs.py").read_text(
-        encoding="utf-8"
-    )
-    sitemap = (ROOT / "docs/sitemap.xml").read_text(encoding="utf-8")
-
-    for page in ["user-guide", "API", "self-hosting"]:
-        assert f"/{page}.html" in sitemap
-        assert (ROOT / f"docs/{page}.md").exists()
-
-    assert "render_markdown_doc" in static_docs
-    assert 'REPO_ROOT / "docs" / f"{Path(path).stem}.md"' in static_docs
+    assert 'REPO_ROOT / "docs"' not in static_docs
+    for name in ("sitemap.xml", "llms.txt", "robots.txt", "index.html"):
+        assert not (ROOT / "docs" / name).exists(), name

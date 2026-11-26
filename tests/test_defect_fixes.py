@@ -197,30 +197,14 @@ class TestD5PersonalModeAuth:
         assert resp.status_code == 200
         return json.loads(resp.data)["token"]
 
-    def test_read_endpoints_with_token(self, client):
-        headers = {"Authorization": f"Bearer {self._token(client)}"}
-        for ep in ("/api/stats", "/api/progress", "/api/predictions/leaderboard"):
-            resp = client.get(ep, headers=headers)
-            assert resp.status_code == 200, (ep, resp.status_code, resp.data)
-
-    def test_predictions_post_with_token(self, client):
-        headers = {"Authorization": f"Bearer {self._token(client)}"}
-        resp = _post_json(
-            client,
-            "/api/predictions",
-            {"combo_id": 1, "predicted_outcome": "glossy"},
-            headers=headers,
-        )
-        assert resp.status_code == 201
-
     def test_template_apply_with_token(self, client):
         headers = {"Authorization": f"Bearer {self._token(client)}"}
         resp = client.post("/api/templates/community-glazes/apply", headers=headers)
         assert resp.status_code == 200
 
     def test_still_401_without_token(self, client):
-        for ep in ("/api/stats", "/api/progress", "/api/predictions/leaderboard"):
-            assert client.get(ep).status_code == 401
+        resp = client.post("/api/templates/community-glazes/apply")
+        assert resp.status_code == 401
 
 
 class TestD6JsonErrors:

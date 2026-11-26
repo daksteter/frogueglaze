@@ -54,14 +54,6 @@ Screenshots of the current app are pending — see [docs/screenshots/README.md](
 ---
 
 
-## Public Discovery
-
-**OpenGlaze** is open-source glaze chemistry software for potters, ceramic artists, studios, educators, and production ceramicists. It combines a ceramic glaze calculator, UMF analysis, CTE estimation, recipe management, self-hosting, and optional AI glaze consulting.
-
-**AI discovery:** [`llms.txt`](llms.txt) provides a compact project summary for AI assistants and search crawlers.
-
-**Best-fit searches:** ceramic glaze calculator, UMF calculator, glaze chemistry software, open source pottery app, self-hosted glaze recipe manager, CTE glaze calculator, Glazy alternative, ceramic recipe optimizer.
-
 ## Overview
 
 OpenGlaze is a **free, open-source ceramic glaze management system** for potters, ceramic artists, and studios. It combines a **UMF calculator**, **CTE analysis engine**, **computational recipe optimizer**, and **AI-powered glaze consulting** — all in one self-hosted application.
@@ -72,8 +64,6 @@ OpenGlaze is a **free, open-source ceramic glaze management system** for potters
 2. OpenGlaze calculates UMF, oxide roles, SiO₂:Al₂O₃ ratio, and estimated CTE.
 3. If the glaze fit looks risky, the optimizer suggests material adjustments for the next test tile.
 4. You still fire a real test tile — but you waste less clay, material, and kiln space getting there.
-
-**Popular starting points:** [Ceramic glaze calculator](https://kyanitelabs.github.io/openglaze/ceramic-glaze-calculator.html) · [UMF calculator](https://kyanitelabs.github.io/openglaze/umf-calculator.html) · [CTE calculator](https://kyanitelabs.github.io/openglaze/cte-glaze-calculator.html) · [Glazy companion](https://kyanitelabs.github.io/openglaze/glazy-alternative.html) · [Self-hosted glaze software](https://kyanitelabs.github.io/openglaze/self-hosted-glaze-software.html)
 
 Built by potters, for potters. Your glaze recipes stay on your infrastructure. No subscriptions. No feature gates. MIT licensed.
 
@@ -112,7 +102,7 @@ OpenGlaze is not a replacement for these tools — it complements them. Many use
 
 ### Docker (Recommended, 2 minutes)
 
-The default Docker path is a single-user, self-hosted install: the app keeps its data in SQLite on persistent Docker volumes, and the stack also starts PostgreSQL and Ory Kratos for the experimental cloud-auth profile. The defaults in `.env.example` work out of the box on a fresh clone; set a real `SECRET_KEY` and a strong `POSTGRES_PASSWORD` before exposing the app publicly.
+The Docker path is a single-user, self-hosted install: the app keeps its SQLite database and uploaded photos on the named volumes `openglaze_data` and `openglaze_uploads`. The defaults in `.env.example` work out of the box on a fresh clone; set a real `SECRET_KEY` before exposing the app publicly.
 
 ```bash
 # Clone the repository
@@ -229,14 +219,6 @@ Example MCP config:
 
 </td>
 <td width="50%">
-
-### 🎮 Gamification
-- Points and streak tracking
-- Achievement badges
-- Activity leaderboards
-- Experiment milestones
-- Community challenges
-
 </td>
 </tr>
 </table>
@@ -248,28 +230,10 @@ Example MCP config:
 - 🔥 **Firing Logs** — Atmosphere, cone, and schedule tracking
 - 🧮 **Layering Tracker** — Document and predict base/top combinations
 - 💾 **Import/Export** — JSON/CSV export in the legacy dashboard; Glazy/INSIGHT import is a roadmap integration
-- 📊 **Progress views** — Track experiments and prediction activity where auth is enabled
 - 📱 **PWA** — Install as an app on mobile/desktop
 - ⌨️ **Command Palette** — Quick navigation with ⌘K
-- 🔐 **Auth** — simple local auth for studio features; Ory/Kratos support is experimental
+- 🔐 **Auth** — simple local auth for studio features
 
-
-## Learn by search intent
-
-These pages are built to answer the exact questions potters and AI answer engines ask:
-
-| Search intent | OpenGlaze page |
-| --- | --- |
-| Ceramic glaze calculator | <https://kyanitelabs.github.io/openglaze/ceramic-glaze-calculator.html> |
-| UMF calculator for ceramics | <https://kyanitelabs.github.io/openglaze/umf-calculator.html> |
-| Glaze recipe calculator | <https://kyanitelabs.github.io/openglaze/glaze-recipe-calculator.html> |
-| Glaze CTE calculator | <https://kyanitelabs.github.io/openglaze/cte-glaze-calculator.html> |
-| Glazy alternative / companion | <https://kyanitelabs.github.io/openglaze/glazy-alternative.html> |
-| DigitalFire companion | <https://kyanitelabs.github.io/openglaze/digitalfire-companion.html> |
-| Open-source pottery software | <https://kyanitelabs.github.io/openglaze/open-source-pottery-software.html> |
-| Self-hosted glaze software | <https://kyanitelabs.github.io/openglaze/self-hosted-glaze-software.html> |
-
-AI crawlers and answer engines can use [`docs/llms.txt`](docs/llms.txt), [`docs/llms-full.txt`](docs/llms-full.txt), and [`docs/ai.txt`](docs/ai.txt) for canonical project facts.
 
 ## Tech Stack
 
@@ -278,7 +242,7 @@ AI crawlers and answer engines can use [`docs/llms.txt`](docs/llms.txt), [`docs/
 | Backend | Flask 3.x (Python) | MIT |
 | Frontend | Vanilla JS SPA | MIT |
 | Database | SQLite | Public Domain |
-| Auth | Simple local tokens; Ory hooks experimental | Apache 2.0 |
+| Auth | Simple local tokens | — |
 | AI | Ollama (local) / Anthropic Claude (cloud) | — |
 | Import/Export | JSON/CSV export in legacy dashboard; broader Glazy/INSIGHT import is roadmap | MIT |
 | Chemistry | Custom UMF Engine | MIT |
@@ -307,8 +271,8 @@ AI crawlers and answer engines can use [`docs/llms.txt`](docs/llms.txt), [`docs/
 ┌────────────────────▼────────────────────────────────────────┐
 │                      Data Layer                              │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────────────┐  │
-│  │SQLite    │  │Ory       │  │Ceramics Foundation Data  │  │
-│  │          │  │Kratos    │  │(Materials, Recipes, etc.)│  │
+│  │SQLite    │  │Uploads   │  │Ceramics Foundation Data  │  │
+│  │          │  │(photos)  │  │(Materials, Recipes, etc.)│  │
 │  └──────────┘  └──────────┘  └──────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -460,8 +424,7 @@ the repository — see [templates/README.md](templates/README.md#licensing).
 
 <p align="center">
   <a href="https://github.com/KyaniteLabs/openglaze">GitHub</a> •
-  <a href="https://github.com/KyaniteLabs/openglaze/discussions">Discussions</a> •
-  <a href="https://kyanitelabs.github.io/openglaze/">Website</a>
+  <a href="https://github.com/KyaniteLabs/openglaze/discussions">Discussions</a>
 </p>
 
 ---

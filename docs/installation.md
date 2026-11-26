@@ -1,6 +1,6 @@
 # Installation Guide
 
-OpenGlaze currently has one supported launch path: **single-user self-hosting with SQLite**. PostgreSQL/Ory services remain in the compose file under an experimental profile, but the application data layer is SQLite-backed today.
+OpenGlaze has one launch path: **single-user self-hosting with SQLite**.
 
 ## Docker installation
 
@@ -68,19 +68,8 @@ Open <http://localhost:8767> unless you set `FLASK_PORT`.
 | `DATABASE_PATH` | `glaze.db` locally, `/data/glaze.db` in Docker | SQLite database file |
 | `FLASK_HOST` | `127.0.0.1` locally, `0.0.0.0` in Docker | Bind host |
 | `FLASK_PORT` | `8767` locally, `8768` in Docker | Bind port |
-| `BASE_URL` | `http://localhost:8768` in Docker | Public URL for links/docs |
 | `SECRET_KEY` | generated per process if omitted | Set this for persistent sessions |
 | `RATELIMIT_PER_MINUTE` | `60` | In-memory request rate limit |
-
-## Experimental services
-
-The compose file includes `postgres` and `kratos` services that start by default alongside the app. A `dev` profile adds `mailhog` for email testing:
-
-```bash
-docker compose --profile dev up -d
-```
-
-PostgreSQL and Ory Kratos are **not** the supported launch path yet because the application data layer still uses SQLite connections by default.
 
 ## Troubleshooting
 

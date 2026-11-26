@@ -4,7 +4,7 @@ Current REST API for the Flask app in this repository.
 
 **Base URL:** `http://localhost:8768/api` for Docker, `http://localhost:8767/api` for manual local runs unless `FLASK_PORT` is set.
 
-**Authentication model:** default personal mode is single-user and mostly unauthenticated. Studio collaboration uses the lightweight simple-auth token returned by `/api/auth/simple-login`. Cloud/Ory auth exists in code, but PostgreSQL/cloud mode is not the default launch path.
+**Authentication model:** default personal mode is single-user and mostly unauthenticated. Studio collaboration uses the lightweight simple-auth token returned by `/api/auth/simple-login`.
 
 ## Health
 
@@ -180,7 +180,7 @@ Idea capture for the studio. `POST` takes a JSON body with `content` (required) 
 
 ## Studio collaboration
 
-Studio endpoints require simple-auth or Ory user context.
+Studio endpoints require a simple-auth Bearer token.
 
 ```http
 POST /api/studios
@@ -194,17 +194,6 @@ POST /api/studios/<studio_id>/lab-queue/<combo_id>/claim
 POST /api/studios/<studio_id>/lab-queue/<combo_id>/release
 GET /api/studios/<studio_id>/my-claims
 GET /api/studios/<studio_id>/experiments
-```
-
-## Progress, stats, and predictions
-
-These endpoints identify the caller from the simple-auth Bearer token (or Ory in cloud mode); without one they return `401`.
-
-```http
-GET /api/stats
-GET /api/progress
-POST /api/predictions
-GET /api/predictions/leaderboard
 ```
 
 ## Templates

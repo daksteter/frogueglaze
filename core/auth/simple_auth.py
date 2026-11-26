@@ -1,6 +1,6 @@
 """
-Simple Auth: Lightweight invite-code session handler for testers.
-No Ory Kratos needed — tokens signed with app SECRET_KEY.
+Simple Auth: lightweight display-name sessions for studio features.
+Tokens are random and held in memory, so they reset when the server restarts.
 """
 
 import secrets
@@ -73,3 +73,14 @@ def cleanup_expired():
         del _sessions[t]
     if expired:
         logger.info(f"Cleaned up {len(expired)} expired simple auth sessions")
+
+
+def get_simple_user() -> Optional[dict]:
+    """Return {user_id, display_name} for the request's Bearer token, or None."""
+    from flask import request
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return None
+    token = auth_header[7:].strip()
+    return validate_session(token) if token else None

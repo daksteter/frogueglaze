@@ -49,7 +49,7 @@ pip install pytest pytest-cov black ruff
 python seed_data.py
 python server.py
 
-# Full stack (PostgreSQL, Kratos)
+# Docker (same app, SQLite on named volumes)
 docker compose up -d
 ```
 
@@ -59,8 +59,7 @@ Create `.env`:
 
 ```bash
 FLASK_ENV=development
-BASE_URL=http://localhost:8767
-DATABASE_URL=sqlite:///glaze.db
+DATABASE_PATH=glaze.db
 SECRET_KEY=dev-secret-key-not-for-production
 MODE=personal
 
@@ -83,11 +82,9 @@ openglaze/
 │   ├── experiments/       # Pipeline stage management
 │   ├── chemistry/         # UMF, compatibility, batch calc
 │   ├── ai/                # Kama assistant + context retrieval
-│   ├── auth/              # JWT / Ory Kratos integration
+│   ├── auth/              # Simple display-name sessions
 │   ├── security/          # Rate limiting, CSP, validation
 │   ├── studios/           # Studio and member management
-│   ├── gamification/      # Points, badges, leaderboards
-│   ├── predictions/       # Prediction market logic
 │   └── simulation/        # Chemistry simulation
 ├── frontend/              # Vanilla JS SPA
 │   ├── index.html         # App shell
@@ -282,8 +279,6 @@ styles/
 ├── typography.css     # Font rules
 ├── layout.css         # Grid, flexbox, sidebar, header
 ├── components.css     # Buttons, cards, inputs, badges
-├── gamification.css   # Points, badges, leaderboards
-├── prediction.css     # Prediction market UI
 └── tips.css           # Tooltips and help text
 ```
 

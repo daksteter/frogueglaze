@@ -1,4 +1,4 @@
-const CACHE_NAME = 'openglaze-v3';
+const CACHE_NAME = 'openglaze-v4';
 
 const STATIC_ASSETS = [
     '/',
@@ -8,8 +8,6 @@ const STATIC_ASSETS = [
     '/styles/typography.css',
     '/styles/layout.css',
     '/styles/components.css',
-    '/styles/gamification.css',
-    '/styles/prediction.css',
     '/styles/tips.css',
     '/scripts/data.js',
     '/scripts/api.js',
@@ -22,10 +20,6 @@ const STATIC_ASSETS = [
     '/scripts/components/StudioPanel.js',
     '/scripts/components/LabQueueBoard.js',
     '/scripts/components/FiringLogForm.js',
-    '/scripts/components/GamificationPanel.js',
-    '/scripts/components/PredictionMarket.js',
-    '/scripts/components/Leaderboard.js',
-    '/scripts/components/ProgressTracker.js',
     '/scripts/components/GlazeTips.js',
     '/scripts/PhotoUploadForm.js',
     '/scripts/PhotoGallery.js',

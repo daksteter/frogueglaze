@@ -6,7 +6,6 @@ from flask import Blueprint, current_app, jsonify, request
 
 from core.errors import error_payload
 from core.security import rate_limit
-from webapp.helpers import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +36,7 @@ def batch_chemistry_analysis():
     try:
         analyzer = BatchAnalyzer(
             db_path=current_app.config.get("DATABASE_PATH", "glaze.db"),
-            user_id=(
-                get_current_user_id()
-                if current_app.config.get("FEATURES", {}).get("auth_enabled")
-                else None
-            ),
+            user_id=None,
             cone=int(cone) if cone is not None else 10,
         )
         report = analyzer.generate_report()

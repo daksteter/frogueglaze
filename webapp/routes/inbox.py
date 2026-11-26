@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 from core.security import rate_limit
 from webapp.db import get_db_connection
-from webapp.helpers import get_current_user_id, require_auth_for_write
+from webapp.helpers import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +37,6 @@ def get_inbox():
 @rate_limit(requests_per_minute=30)
 def add_to_inbox():
     """Add idea to inbox."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json or {}
     conn = get_db_connection(current_app.config.get("DATABASE_PATH", "glaze.db"))
     cursor = conn.cursor()

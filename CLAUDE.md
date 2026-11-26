@@ -19,8 +19,8 @@ studio, so features are judged by whether that studio needs them.
 
 ## Fork goals
 
-1. Fork and trim: remove features the studio won't use, tests green on Linux
-   and on Windows.
+1. Fork and trim: remove features the studio won't use, tests green on
+   Linux. (Done 2026-11-25. Windows test runs are not a priority.)
 2. Recipe editor with a live calculator (UMF, SiO2:Al2O3, estimated CTE, limit
    warnings), side-by-side comparison, saved versions.
 3. A larger materials library from supplier data sheets, with the source of
@@ -30,9 +30,18 @@ studio, so features are judged by whether that studio needs them.
 5. Validate UMF output against Insight-Live using real studio recipes.
 6. Printable batch sheets, firing schedules, test-tile records with photos.
 
-Likely cuts, **not yet confirmed — do not remove without asking**:
-gamification (points, leaderboards), the prediction market, the SEO landing
-pages, and the Ory Kratos + PostgreSQL cloud-auth stack.
+Removed from the fork on 2026-11-25; don't bring them back, including when
+merging `upstream/master` (resolve conflicts there by keeping them deleted):
+
+- Gamification: points, badges, streaks, the progress tracker, `/api/stats`,
+  `/api/progress`.
+- The prediction market: `/api/predictions*` and its tables. AI predictions
+  for glaze combinations (`prediction_grade`, `simulate_combo`) stay.
+- The SEO landing pages and discovery files under `docs/` (sitemap, robots,
+  llms, ai.txt) and the routes that served them.
+- The Ory Kratos + PostgreSQL stack and cloud mode. The app runs in personal
+  mode only; `OPENGLAZE_MODE=cloud` raises `ConfigurationError`. Studio
+  features identify people by simple-auth tokens (`core/auth/simple_auth.py`).
 
 ## Setup and commands
 

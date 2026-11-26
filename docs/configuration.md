@@ -33,7 +33,3 @@ Default compose uses:
 
 - `openglaze_data:/data`
 - `openglaze_uploads:/app/frontend/uploads`
-
-## Experimental cloud variables
-
-`POSTGRES_PASSWORD`, `KRATOS_PUBLIC_URL`, `KRATOS_ADMIN_URL`, and `KRATOS_HOOK_KEY` are retained for the experimental cloud profile. They are not required for the supported default Docker launch.

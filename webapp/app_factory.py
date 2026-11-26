@@ -15,14 +15,8 @@ from core.experiments import ExperimentManager
 from core.ai.context import ContextRetriever
 from core.security import init_security
 from webapp.db import get_db_connection, init_db
-from webapp.helpers import AUTH_AVAILABLE, auth_enabled
+from webapp.helpers import get_current_user_id
 from webapp.routes import ALL_BLUEPRINTS
-
-try:
-    from core.auth import AuthMiddleware
-
-except ImportError:
-    AUTH_AVAILABLE = False
 
 try:
     from core.studios import StudioManager
@@ -30,20 +24,6 @@ try:
     STUDIOS_AVAILABLE = True
 except ImportError:
     STUDIOS_AVAILABLE = False
-
-try:
-    from core.gamification.manager import GamificationManager
-
-    GAMIFICATION_AVAILABLE = True
-except ImportError:
-    GAMIFICATION_AVAILABLE = False
-
-try:
-    from core.predictions.manager import PredictionManager
-
-    PREDICTIONS_AVAILABLE = True
-except ImportError:
-    PREDICTIONS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -91,11 +71,6 @@ def create_app(config: dict = None) -> Flask:
     # Initialize security
     init_security(app)
 
-    # Initialize auth middleware (cloud mode)
-    if features["auth_enabled"] and AUTH_AVAILABLE:
-        AuthMiddleware(app)
-        logger.info("Authentication middleware enabled")
-
     # Initialize database schema
     init_db(db_path)
 
@@ -117,27 +92,16 @@ def _make_request_setup(db_path: str):
 
     def setup_managers():
         """Set up managers for each request."""
-        user_id = None
-        if auth_enabled():
-            from core.auth import get_user_id
-
-            user_id = get_user_id()
-        g.glaze_manager = GlazeManager(db_path, user_id=user_id)
-        g.combo_manager = CombinationManager(db_path, user_id=user_id)
-        g.exp_manager = ExperimentManager(db_path, user_id=user_id)
+        # Personal mode: glazes, combinations and experiments are not per-user
+        g.glaze_manager = GlazeManager(db_path)
+        g.combo_manager = CombinationManager(db_path)
+        g.exp_manager = ExperimentManager(db_path)
         g.context_retriever = ContextRetriever(db_path)
-        # Shared DB connection for gamification/predictions (takes conn, not db_path)
+        # Shared DB connection for routes that take a connection, not db_path
         g.db_conn = get_db_connection(db_path)
-        if GAMIFICATION_AVAILABLE:
-            g.gamification_manager = GamificationManager(g.db_conn)
-        if PREDICTIONS_AVAILABLE:
-            g.prediction_manager = PredictionManager(g.db_conn)
         if STUDIOS_AVAILABLE:
-            # For studio endpoints, user_id comes from simple auth or Ory
-            from core.auth.middleware import get_user_id_or_simple
-
-            studio_user_id = get_user_id_or_simple()
-            g.studio_manager = StudioManager(db_path, user_id=studio_user_id)
+            # Studio endpoints identify the caller by simple-auth token
+            g.studio_manager = StudioManager(db_path, user_id=get_current_user_id())
 
     return setup_managers
 

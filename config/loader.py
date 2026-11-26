@@ -1,6 +1,6 @@
 """
 OpenGlaze Configuration Loader
-Detects runtime mode (personal vs cloud) and provides appropriate configuration.
+Provides the personal-mode runtime configuration.
 Security-hardened as of March 2026.
 """
 
@@ -96,163 +96,18 @@ class PersonalMode(ModeConfig):
         return key
 
 
-@dataclass
-class CloudMode(ModeConfig):
-    """Cloud mode: Multi-tenant, PostgreSQL, auth via Ory Kratos."""
-
-    # Tier levels
-    TIER_FREE: str = "free"
-    TIER_PRO: str = "pro"
-    TIER_STUDIO: str = "studio"
-
-    def __post_init__(self):
-        self.name = "cloud"
-        self.AUTH_ENABLED = True
-        self.MULTI_TENANT = True
-        self.API_ACCESS = True
-        self.ANALYTICS = True
-        self.DEFAULT_THEME = "light"
-        self.DB_TYPE = "postgresql"
-        self.DEBUG = False  # NEVER enable debug in cloud mode
-
-        self.HOST = os.environ.get("FLASK_HOST", "0.0.0.0")
-        self.PORT = int(os.environ.get("FLASK_PORT", "8080"))
-
-        # Validate required environment variables
-        self._validate_required_env_vars()
-
-        # Security settings for cloud mode
-        self.security = SecurityConfig(
-            rate_limiting_enabled=True,
-            rate_limit_per_minute=int(os.environ.get("RATELIMIT_PER_MINUTE", "60")),
-            rate_limit_storage_url=os.environ.get(
-                "RATELIMIT_STORAGE_URL", "redis://localhost:6379"
-            ),
-            cors_origins=self._parse_cors_origins(),
-            cookie_secure=os.environ.get("SESSION_COOKIE_SECURE", "true").lower()
-            == "true",
-            cookie_httponly=True,
-            cookie_samesite="Lax",
-            https_enforce=os.environ.get("HTTPS_ENFORCE", "true").lower() == "true",
-            secret_key=self._require_env("SECRET_KEY"),
-        )
-
-    def _validate_required_env_vars(self):
-        """Validate that all required environment variables are set."""
-        required = ["POSTGRES_HOST", "POSTGRES_PASSWORD", "SECRET_KEY"]
-        missing = [v for v in required if not os.environ.get(v)]
-
-        if missing:
-            raise ConfigurationError(
-                f"Missing required environment variables for cloud mode: {', '.join(missing)}. "
-                "Set these before starting the application."
-            )
-
-    def _require_env(self, name: str) -> str:
-        """Get required environment variable or raise error."""
-        value = os.environ.get(name)
-        if not value:
-            raise ConfigurationError(f"Required environment variable {name} is not set")
-        return value
-
-    def _parse_cors_origins(self) -> List[str]:
-        """Parse CORS origins from environment."""
-        origins_str = os.environ.get("CORS_ORIGINS", "")
-        if not origins_str:
-            return []
-        return [o.strip() for o in origins_str.split(",") if o.strip()]
-
-    def get_tier_features(self, tier: str) -> dict:
-        """Return feature flags for a specific tier."""
-        base_features = {
-            "glaze_crud": True,
-            "combinations": True,
-            "experiments": True,
-            "kama_ai": True,
-            "templates": True,
-        }
-
-        tier_features = {
-            self.TIER_FREE: {
-                "multi_user": False,
-                "analytics": False,
-                "api_access": False,
-                "max_users": 1,
-            },
-            self.TIER_PRO: {
-                "multi_user": True,
-                "analytics": True,
-                "api_access": True,
-                "max_users": 2,
-            },
-            self.TIER_STUDIO: {
-                "multi_user": True,
-                "analytics": True,
-                "api_access": True,
-                "max_users": 10,
-            },
-        }
-
-        features = base_features.copy()
-        features.update(tier_features.get(tier, {}))
-        return features
-
-
 def detect_mode() -> ModeConfig:
-    """
-    Detect runtime mode based on environment and config.
-
-    Priority:
-    1. OPENGLAZE_MODE environment variable (personal/cloud)
-    2. OPENGLAZE_CLOUD environment variable (legacy, if true = cloud)
-    3. config file presence
-    4. Default to personal mode
+    """Return the runtime mode. This fork supports personal mode only.
 
     Raises:
-        ConfigurationError: If cloud mode is requested but required vars are missing
+        ConfigurationError: If OPENGLAZE_MODE asks for any other mode.
     """
-    # Check explicit mode env var
     mode_env = os.environ.get("OPENGLAZE_MODE", "").lower()
-
-    if mode_env == "cloud":
-        logger.info("Cloud mode requested via OPENGLAZE_MODE environment variable")
-        try:
-            return CloudMode()
-        except ConfigurationError as e:
-            logger.error(f"Cloud mode configuration error: {e}")
-            raise
-
-    if mode_env == "personal":
-        logger.info("Personal mode requested via OPENGLAZE_MODE environment variable")
-        return PersonalMode()
-
-    # Check legacy cloud flag
-    if os.environ.get("OPENGLAZE_CLOUD", "").lower() in ("true", "1", "yes"):
-        logger.info(
-            "Cloud mode requested via OPENGLAZE_CLOUD environment variable (legacy)"
+    if mode_env not in ("", "personal"):
+        raise ConfigurationError(
+            f"Unsupported OPENGLAZE_MODE={mode_env!r}: only 'personal' is supported "
+            "(cloud mode and its Ory Kratos auth were removed from this fork)."
         )
-        try:
-            return CloudMode()
-        except ConfigurationError as e:
-            logger.error(f"Cloud mode configuration error: {e}")
-            raise
-
-    # Check for cloud config file presence (indicates cloud deployment)
-    config_dir = Path(__file__).parent
-    cloud_config = config_dir / "cloud.yaml"
-    if cloud_config.exists():
-        # Check if required cloud env vars are set
-        if os.environ.get("POSTGRES_HOST") and os.environ.get("POSTGRES_PASSWORD"):
-            logger.info("Cloud mode detected via config file and environment")
-            try:
-                return CloudMode()
-            except ConfigurationError as e:
-                logger.warning(f"Cloud config present but configuration error: {e}")
-                logger.info("Falling back to personal mode")
-                return PersonalMode()
-
-    # Default to personal mode
-    logger.info("Using personal mode (default)")
     return PersonalMode()
 
 
@@ -333,7 +188,6 @@ __all__ = [
     "detect_mode",
     "load_config",
     "PersonalMode",
-    "CloudMode",
     "ModeConfig",
     "SecurityConfig",
     "ConfigurationError",

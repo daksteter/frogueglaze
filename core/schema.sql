@@ -1,6 +1,6 @@
 -- OpenGlaze Unified Database Schema
--- Works for both personal (SQLite) and cloud (PostgreSQL) modes
--- user_id is NULLABLE: NULL in personal mode, populated in cloud mode
+-- SQLite schema for personal mode
+-- user_id is NULLABLE: NULL for single-user data, set for simple-auth studio users
 
 -- Glazes: All studio glazes
 CREATE TABLE IF NOT EXISTS glazes (
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS glazes (
     catalog_code TEXT,           -- Commercial catalog reference
     food_safe BOOLEAN DEFAULT NULL,  -- true=known food safe, false=not food safe, null=unknown
     notes TEXT,
-    -- Cone / atmosphere / gamification columns
+    -- Cone / atmosphere / display columns
     cone TEXT,
     atmosphere TEXT CHECK(atmosphere IN ('oxidation', 'reduction', 'neutral', 'salt', 'wood')),
     base_type TEXT CHECK(base_type IN ('transparent', 'opaque', 'matte', 'satin', 'gloss', 'semi-opaque')),
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS combinations (
     prediction_grade TEXT DEFAULT 'unknown'
         CHECK(prediction_grade IN ('likely', 'possible', 'unlikely', 'unknown', 'confirmed', 'surprise')),
     notes TEXT,
-    -- Gamification columns
+    -- Firing result and discovery columns
     result_rating INTEGER CHECK(result_rating BETWEEN 1 AND 5),
     is_surprise BOOLEAN DEFAULT 0,
     surprise_rarity TEXT CHECK(surprise_rarity IN ('common', 'uncommon', 'rare', 'legendary')),
@@ -147,70 +147,6 @@ CREATE TABLE IF NOT EXISTS lab_assignments (
 );
 
 -- ==========================================================================
--- GAMIFICATION TABLES (from Source B)
--- ==========================================================================
-
--- User Stats: Points, streaks, badges tracking
-CREATE TABLE IF NOT EXISTS user_stats (
-    user_id TEXT PRIMARY KEY,
-    points INTEGER DEFAULT 0,
-    current_streak INTEGER DEFAULT 0,
-    longest_streak INTEGER DEFAULT 0,
-    streak_freeze_remaining INTEGER DEFAULT 2,
-    last_activity_date TEXT,
-    combinations_tested INTEGER DEFAULT 0,
-    combinations_proven INTEGER DEFAULT 0,
-    surprises_found INTEGER DEFAULT 0,
-    predictions_correct INTEGER DEFAULT 0,
-    predictions_total INTEGER DEFAULT 0,
-    discoveries_count INTEGER DEFAULT 0,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Badges: Earned achievements
-CREATE TABLE IF NOT EXISTS badges (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    badge_type TEXT NOT NULL,
-    badge_name TEXT NOT NULL,
-    badge_icon TEXT,
-    earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id, badge_type)
-);
-
--- Activity Log: For streaks and engagement tracking
-CREATE TABLE IF NOT EXISTS activity_log (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    activity_type TEXT NOT NULL CHECK(activity_type IN (
-        'combination_tested', 'prediction_made', 'prediction_resolved',
-        'discovery_made', 'photo_uploaded', 'glaze_created', 'streak_maintained'
-    )),
-    metadata TEXT,  -- JSON
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ==========================================================================
--- PREDICTIONS (human vs AI prediction market)
--- ==========================================================================
-
-CREATE TABLE IF NOT EXISTS predictions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
-    combination_id INTEGER NOT NULL,
-    predicted_outcome TEXT,
-    confidence INTEGER CHECK(confidence BETWEEN 0 AND 100),
-    is_ai BOOLEAN DEFAULT 0,
-    ai_confidence INTEGER,
-    ai_prediction TEXT,
-    resolved BOOLEAN DEFAULT 0,
-    user_correct BOOLEAN,
-    points_earned INTEGER DEFAULT 0,
-    resolved_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ==========================================================================
 -- INDEXES
 -- ==========================================================================
 
@@ -228,10 +164,3 @@ CREATE INDEX IF NOT EXISTS idx_studios_invite ON studios(invite_code);
 CREATE INDEX IF NOT EXISTS idx_studio_members_user ON studio_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_studio ON lab_assignments(studio_id);
 CREATE INDEX IF NOT EXISTS idx_lab_assignments_combo ON lab_assignments(combination_id);
-CREATE INDEX IF NOT EXISTS idx_predictions_user_id ON predictions(user_id);
-CREATE INDEX IF NOT EXISTS idx_predictions_combination_id ON predictions(combination_id);
-CREATE INDEX IF NOT EXISTS idx_predictions_resolved ON predictions(resolved);
-CREATE INDEX IF NOT EXISTS idx_badges_user_id ON badges(user_id);
-CREATE INDEX IF NOT EXISTS idx_activity_log_user_id ON activity_log(user_id);
-CREATE INDEX IF NOT EXISTS idx_activity_log_date ON activity_log(user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_activity_log_date ON activity_log(user_id, created_at);

@@ -627,7 +627,7 @@ class TestCombinationManagerStage:
         )
 
     def test_bug_progress_counts_documented_combos(self, test_db_path):
-        """BUG: /api/progress counted stage IN ('tested','proven','confirmed'),
+        """BUG: the fired-combination count used stage IN ('tested','proven','confirmed'),
         values no code writes, so promoted ('documented') combos never counted."""
         mgr = CombinationManager(test_db_path, user_id="u1")
         cid = mgr.create(Combination(base="a", top="b", type="user-prediction"))
@@ -642,16 +642,10 @@ class TestCombinationManagerStage:
         )
         assert stages.count_fired(conn.cursor(), "u1") == 2
         conn.close()
-        # Every outcome transition must land on a stage the counter sees, and
-        # the /api/progress route must use this counter rather than its own
-        # hard-coded list (the old list missed 'documented').
+        # Every outcome transition must land on a stage the counter sees
+        # (an older hard-coded list missed 'documented').
         for outcome in FiringOutcome:
             assert stages.has_been_fired(stages.outcome_updates(outcome)["stage"])
-        import inspect
-
-        import webapp.routes.gamification as gamification_routes
-
-        assert "count_fired(cursor, user_id)" in inspect.getsource(gamification_routes)
 
 
 # ===========================================================================

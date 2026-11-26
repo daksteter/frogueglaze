@@ -1,13 +1,5 @@
-"""OpenGlaze Authentication Module."""
+"""OpenGlaze authentication: in-memory display-name sessions (simple auth)."""
 
-from .middleware import AuthMiddleware, require_auth, get_current_user
-from .jwt_handler import JWTHandler
-from .kratos_client import KratosClient
+from .simple_auth import create_session, get_simple_user, validate_session
 
-__all__ = [
-    "AuthMiddleware",
-    "require_auth",
-    "get_current_user",
-    "JWTHandler",
-    "KratosClient",
-]
+__all__ = ["create_session", "get_simple_user", "validate_session"]

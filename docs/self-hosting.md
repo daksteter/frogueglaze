@@ -23,7 +23,7 @@ Browser -> OpenGlaze Flask container :8768
               |-> /app/frontend/uploads       (openglaze_uploads volume)
 ```
 
-This keeps setup simple and matches the current code. PostgreSQL and Ory Kratos are present as experimental services, but they are not the supported default until the data layer is migrated away from SQLite-only connections.
+This keeps setup simple and matches the current code: one app container with SQLite and uploads on named volumes.
 
 ## Environment
 
@@ -116,7 +116,6 @@ curl http://localhost:8768/health
 
 ## Current limits
 
-- PostgreSQL is not wired into application managers yet.
 - Simple-auth sessions are in memory and reset on process restart.
 - Multi-worker deployments need durable auth/session storage first.
 - Uploads are local files; object storage/CDN is future work.

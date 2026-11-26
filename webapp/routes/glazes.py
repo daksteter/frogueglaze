@@ -8,7 +8,6 @@ from flask import Blueprint, g, jsonify, request
 from core.errors import error_payload
 from core.glazes import Glaze
 from core.security import rate_limit
-from webapp.helpers import require_auth_for_write
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +40,6 @@ def get_glaze(glaze_id: str):
 @rate_limit(requests_per_minute=30)
 def create_glaze():
     """Create a new glaze."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
 
     data = request.json
     if not data:
@@ -60,9 +56,6 @@ def create_glaze():
 @rate_limit(requests_per_minute=30)
 def update_glaze(glaze_id: str):
     """Update a glaze."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
 
     data = request.json
     if not data:
@@ -78,9 +71,6 @@ def update_glaze(glaze_id: str):
 @rate_limit(requests_per_minute=30)
 def delete_glaze(glaze_id: str):
     """Delete a glaze."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
 
     success = g.glaze_manager.delete(glaze_id)
     if success:

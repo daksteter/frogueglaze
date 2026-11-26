@@ -9,7 +9,7 @@ CLI / stdio MCP ------------------------------------^ (no web server required)
 Kama request -> conversation/retrieval/context -> selected model endpoint -> streamed answer
 ```
 
-[server.py](server.py) assembles configuration, personal/cloud mode, rate/security headers, database initialization/seed data and routes. Its module-level app is lazy; direct execution calls `create_app` and binds the configured address. [core/db.py](core/db.py) scopes connections and SQLite WAL/busy timeout. [frontend](frontend/index.html) loads separate scripts/components; the browser is a consumer of real studio APIs, not the source of record.
+[server.py](server.py) assembles personal-mode configuration, rate/security headers, database initialization/seed data and routes. Its module-level app is lazy; direct execution calls `create_app` and binds the configured address. [core/db.py](core/db.py) scopes connections and SQLite WAL/busy timeout. [frontend](frontend/index.html) loads separate scripts/components; the browser is a consumer of real studio APIs, not the source of record.
 
 [core/chemistry/data_loader.py](core/chemistry/data_loader.py) caches JSON material/oxide/rule/reference tables from `ceramics-foundation/data`, filters metadata keys and exposes deep-copy reads. [UMF](core/chemistry/umf.py) parses ingredient percentages, totals oxide weights, converts to moles and normalizes flux unity before deriving ratios, surface and CTE estimates. Missing materials/warnings remain part of the result. [openglaze_cli.py](openglaze_cli.py) and [openglaze_mcp.py](openglaze_mcp.py) wrap this same local library.
 

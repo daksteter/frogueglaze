@@ -7,7 +7,6 @@ from flask import Blueprint, g, jsonify, request
 
 from core.security import rate_limit
 from core.upload_utils import save_uploaded_file
-from webapp.helpers import require_auth_for_write
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +17,6 @@ bp = Blueprint("uploads", __name__)
 @rate_limit(requests_per_minute=20)
 def upload_photo():
     """Upload a photo file. Accepts multipart/form-data with 'photo' field."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     if "photo" not in request.files:
         return jsonify({"error": "No photo field in upload"}), 400
 

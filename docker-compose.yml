@@ -9,101 +9,19 @@ services:
     ports:
       - "8768:8768"
     environment:
-      - DATABASE_URL=postgres://openglaze:${POSTGRES_PASSWORD:-openglaze}@postgres:5432/openglaze
-      - KRATOS_PUBLIC_URL=http://kratos:4433
-      - KRATOS_ADMIN_URL=http://kratos:4434
-      - BASE_URL=${BASE_URL:-http://localhost:8768}
-      - KRATOS_HOOK_KEY=${KRATOS_HOOK_KEY:-local-dev-hook-key}
       - FLASK_ENV=${FLASK_ENV:-development}
     volumes:
+      # SQLite database (DATABASE_PATH=/data/glaze.db) and uploaded photos
+      - openglaze_data:/data
+      - openglaze_uploads:/app/frontend/uploads
       - ./templates:/app/templates:ro
       - ./static:/app/static:ro
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kratos-migrate:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8768/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     restart: unless-stopped
-
-  # =============================================================================
-  # DATABASE
-  # =============================================================================
-
-  postgres:
-    # postgres 18+ images require the new /var/lib/postgresql mount layout
-    # (docker-library/postgres#37) and refuse the legacy
-    # /var/lib/postgresql/data volume; re-pin majors only together with
-    # that volume change.
-    image: postgres:18-alpine
-    container_name: openglaze-postgres
-    environment:
-      - POSTGRES_USER=openglaze
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-openglaze}
-      - POSTGRES_DB=openglaze
-    # postgres 18+ keeps cluster data under /var/lib/postgresql/<major>/docker;
-    # mount the parent dir (the image's own VOLUME path) so the on-disk layout
-    # matches what the entrypoint expects — see docker-library/postgres#37.
-    volumes:
-      - postgres_data:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U openglaze"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # =============================================================================
-  # AUTHENTICATION (Ory Kratos)
-  # =============================================================================
-
-  kratos:
-    image: oryd/kratos:v26.2.0
-    container_name: openglaze-kratos
-    ports:
-      - "4433:4433"  # Public API
-      - "4434:4434"  # Admin API
-    environment:
-      - DSN=postgres://openglaze:${POSTGRES_PASSWORD:-openglaze}@postgres:5432/openglaze
-      - KRATOS_HOOK_KEY=${KRATOS_HOOK_KEY:-local-dev-hook-key}
-      - LOG_LEVEL=info
-    volumes:
-      - ./kratos:/etc/config/kratos:ro
-    command: serve -c /etc/config/kratos/config.yml --dev --watch-courier
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  kratos-migrate:
-    image: oryd/kratos:v26.2.0
-    container_name: openglaze-kratos-migrate
-    environment:
-      - DSN=postgres://openglaze:${POSTGRES_PASSWORD:-openglaze}@postgres:5432/openglaze
-    volumes:
-      - ./kratos:/etc/config/kratos:ro
-    command: migrate -c /etc/config/kratos/config.yml sql up -e --yes
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  # =============================================================================
-  # EMAIL (Development)
-  # =============================================================================
-
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
-    container_name: openglaze-mailhog
-    ports:
-      - "1025:1025"  # SMTP
-      - "8025:8025"  # Web UI
-    restart: unless-stopped
-    profiles:
-      - dev
 
   # =============================================================================
   # REVERSE PROXY (Production)
@@ -120,13 +38,13 @@ services:
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - openglaze
-      - kratos
     restart: unless-stopped
     profiles:
       - prod
 
 volumes:
-  postgres_data:
+  openglaze_data:
+  openglaze_uploads:
 
 networks:
   default:

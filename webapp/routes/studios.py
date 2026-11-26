@@ -19,19 +19,11 @@ def _studios_available() -> bool:
 
 def _get_studio_user():
     """Get user_id and display_name for studio operations."""
-    from webapp.helpers import AUTH_AVAILABLE
-
-    from core.auth.middleware import get_simple_user
+    from core.auth import get_simple_user
 
     simple = get_simple_user()
     if simple:
         return simple["user_id"], simple["display_name"]
-    if AUTH_AVAILABLE:
-        from core.auth import get_current_user
-
-        user = get_current_user()
-        if user:
-            return user["user_id"], user.get("email", user.get("display_name", ""))
     return None, None
 
 

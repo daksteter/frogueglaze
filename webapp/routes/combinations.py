@@ -7,7 +7,6 @@ from flask import Blueprint, current_app, g, jsonify, request
 from core.combinations import Combination
 from core.errors import error_payload
 from core.security import rate_limit
-from webapp.helpers import get_current_user_id, require_auth_for_write
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +56,6 @@ def get_combination(combo_id: int):
 @rate_limit(requests_per_minute=30)
 def create_combination():
     """Create a new combination."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -83,24 +79,10 @@ def create_combination():
 @rate_limit(requests_per_minute=30)
 def promote_combination(combo_id: int):
     """Promote a hypothesis to confirmed."""
-    from webapp.app_factory import GAMIFICATION_AVAILABLE, PREDICTIONS_AVAILABLE
-
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json or {}
     result = data.get("result", "")
     success = g.combo_manager.promote_to_confirmed(combo_id, result)
     if success:
-        # Gamification hooks
-        user_id = get_current_user_id()
-        if user_id and GAMIFICATION_AVAILABLE:
-            g.gamification_manager.on_combination_tested(user_id, combo_id, "proven")
-            g.gamification_manager.log_activity(
-                user_id, "combination_tested", {"combination_id": combo_id}
-            )
-        if user_id and PREDICTIONS_AVAILABLE:
-            g.prediction_manager.resolve_predictions(combo_id, "proven")
         return jsonify({"success": True})
     return jsonify({"error": "Promotion failed"}), 400
 
@@ -109,9 +91,6 @@ def promote_combination(combo_id: int):
 @rate_limit(requests_per_minute=30)
 def update_combination(combo_id: int):
     """Update a combination (stage, prediction_grade, etc.)."""
-    auth_err = require_auth_for_write()
-    if auth_err:
-        return auth_err
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400
@@ -171,10 +150,9 @@ def simulate_all_combinations():
     try:
         from core.simulation.batch_simulate import batch_simulate
 
-        auth_enabled = current_app.config.get("FEATURES", {}).get("auth_enabled")
         result = batch_simulate(
             db_path=current_app.config.get("DATABASE_PATH", "glaze.db"),
-            user_id=get_current_user_id() if auth_enabled else None,
+            user_id=None,
         )
         return jsonify(result)
     except Exception as e:

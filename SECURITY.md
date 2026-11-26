@@ -57,9 +57,8 @@ If you are self-hosting OpenGlaze, follow these practices:
 
 ### Database
 
-- Use PostgreSQL in production (not SQLite)
-- Enable SSL/TLS for database connections
-- Restrict database access to the application server only
+- Keep the SQLite database file on a volume only the application can read
+- Back up the database and uploads before upgrades
 - Set up automated backups
 
 ### Network
@@ -72,7 +71,7 @@ If you are self-hosting OpenGlaze, follow these practices:
 ### Environment
 
 - Keep `.env` files secure and never commit them to version control
-- Use strong secrets for `SECRET_KEY`, `KRATOS_HOOK_KEY`, etc.
+- Use a strong random `SECRET_KEY`
 - Regularly update dependencies: `pip install --upgrade -r requirements.txt`
 - Monitor for security advisories in dependencies
 
